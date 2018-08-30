@@ -1,0 +1,24 @@
+### When modifying this file please update .dockerignore accordingly.
+
+# compiled output
+/tmp
+
+# dependencies
+/node_modules
+
+# misc
+.idea/
+.DS_Store
+.sass-cache
+*.sublime-*
+*.sw[a-z]
+*.orig
+*.log
+*.iml
+.eslintcache
+/connect.lock
+/coverage/*
+/libpeerconnection.log
+npm-debug.log*
+yarn-error.log
+testem.log
