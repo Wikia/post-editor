@@ -1,35 +1,23 @@
 import { h, Component } from 'preact';
 
+import IconPopup from './IconPopup';
+
 import './App.scss';
 
-export default class App extends Component {
-    constructor(props) {
-        super(props);
+const NOTCH_COMPENSATION = 12;
 
-        this.state = {
-            clicks: 0,
+export default class Hyperlinking extends Component {
+    getComputedPosition(position) {
+        return {
+            top: position.bottom + NOTCH_COMPENSATION,
+            left: (position.left + position.right) / 2,
         };
     }
 
-    onClick() {
-        this.setState(({ clicks }) => ({ clicks: clicks + 1 }));
-    }
-
-    render() {
-        const { clicks } = this.state;
-
+    render({ position }) {
         return (
-            <div className="test-class">
-                <h1 role="presentation" onClick={() => this.onClick()}>
-                    Hai! {clicks}
-                </h1>
-                <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                >
-                    Click me now
-                </a>
+            <div className="pe-hyperlinking">
+                <IconPopup position={this.getComputedPosition(position)} />
             </div>
         );
     }

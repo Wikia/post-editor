@@ -1,5 +1,8 @@
-.test-class {
-	color: red;
-	font-size: 10px;
-	padding: 20px;
+.pe-hyperlinking,
+.pe-hyperlinking * {
+	box-sizing: border-box;
+}
+
+.pe-hyperlinking {
+	width: 320px;
 }

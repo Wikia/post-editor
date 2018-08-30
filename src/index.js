@@ -1,14 +1,16 @@
-import { h, render } from 'preact';
-import Quill from 'quill/dist/quill.core';
+import Quill from 'quill/core';
 
-import App from './components/App';
+import HyperlinkingModule from './modules/Hyperlinking';
 
 import 'quill/dist/quill.core.css';
 
 export default function create(container, options) {
-    return new Quill(container, options);
-}
+    Quill.register('modules/hyperlinking', HyperlinkingModule);
 
-export const preactTest = (el) => {
-    render(<App />, el);
-};
+    return new Quill(container, {
+        modules: {
+            hyperlinking: {},
+        },
+        ...options,
+    });
+}
