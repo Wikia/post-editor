@@ -1,10 +1,14 @@
 import Quill from 'quill/core';
 import { h, Component } from 'preact';
 
+import Highlight from '../blots/Highlight';
+
 import HyperlinkingWrapper from './HyperlinkingWrapper';
 
 import 'quill/dist/quill.core.css';
 import './PostEditor.scss';
+
+Quill.register({ 'formats/highlight': Highlight });
 
 export default class PostEditor extends Component {
     constructor(props) {
@@ -24,10 +28,14 @@ export default class PostEditor extends Component {
     }
 
     onSelection(range) {
-        if (range && range.length > 0) {
-            this.setState({ currentSelection: this.quill.getBounds(range.index, range.length) });
-        } else {
-            this.setState({ currentSelection: null });
+        if (range) {
+            if (range.length > 0) {
+                this.setState({ currentSelection: this.quill.getBounds(range.index, range.length) });
+                this.quill.format('highlight', true);
+            } else {
+                this.setState({ currentSelection: null });
+                this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
+            }
         }
     }
 
