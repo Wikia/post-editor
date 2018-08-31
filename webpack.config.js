@@ -83,6 +83,10 @@ module.exports = {
                     },
                 ],
             },
+            {
+                test: /\.svg$/,
+                use: 'preact-svg-loader',
+            },
         ],
     },
     plugins,

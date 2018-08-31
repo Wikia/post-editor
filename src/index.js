@@ -1,14 +1,7 @@
 import { h, render } from 'preact';
-import Quill from 'quill/dist/quill.core';
 
-import App from './components/App';
-
-import 'quill/dist/quill.core.css';
+import PostEditor from './components/PostEditor';
 
 export default function create(container, options) {
-    return new Quill(container, options);
+    return render(<PostEditor options={options} />, container);
 }
-
-export const preactTest = (el) => {
-    render(<App />, el);
-};
