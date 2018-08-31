@@ -1,12 +1,12 @@
 import { h, Component } from 'preact';
 
-import IconPopup from './IconPopup';
+import IconTooltip from './IconTooltip';
 
 import './HyperlinkingWrapper.scss';
 
 const NOTCH_COMPENSATION = 20;
 
-export default class Hyperlinking extends Component {
+export default class HyperlinkingWrapper extends Component {
     getComputedPosition(position) {
         return {
             top: position.bottom + NOTCH_COMPENSATION,
@@ -19,7 +19,7 @@ export default class Hyperlinking extends Component {
 
         return (
             <div className="pe-hyperlinking">
-                <IconPopup position={this.getComputedPosition(position)} />
+                <IconTooltip position={this.getComputedPosition(position)} />
             </div>
         );
     }
