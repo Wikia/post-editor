@@ -2,11 +2,11 @@ import { h, Component } from 'preact';
 
 import IconTooltip from './IconTooltip';
 
-import './HyperlinkingTooltip.scss';
+import './HyperlinkingWrapper.scss';
 
-const NOTCH_COMPENSATION = 12;
+const NOTCH_COMPENSATION = 20;
 
-export default class HyperlinkingTooltip extends Component {
+export default class HyperlinkingWrapper extends Component {
     getComputedPosition(position) {
         return {
             top: position.bottom + NOTCH_COMPENSATION,
@@ -14,7 +14,9 @@ export default class HyperlinkingTooltip extends Component {
         };
     }
 
-    render({ position }) {
+    render() {
+        const { position } = this.props;
+
         return (
             <div className="pe-hyperlinking">
                 <IconTooltip position={this.getComputedPosition(position)} />
