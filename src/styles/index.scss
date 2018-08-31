@@ -1,0 +1,13 @@
+.ql-container .ql-editor {
+	padding: 7px 0 10px 0;
+
+	// placeholder styling
+	&.ql-blank::before {
+		font-size: 1rem;
+		font-style: normal;
+		font-weight: 400;
+		left: 0;
+		line-height: 1.6;
+		right: 0;
+	}
+}

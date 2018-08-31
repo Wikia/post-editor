@@ -1,6 +1,6 @@
 import { h, render } from 'preact';
 
-import App from '../components/App';
+import HyperlinkingTooltip from '../components/HyperlinkingTooltip';
 
 export default class Hyperlinking {
     constructor(quill) {
@@ -14,9 +14,17 @@ export default class Hyperlinking {
             if (range.length > 0) {
                 const selectionPosition = this.quill.getBounds(range.index, range.length);
 
-                render(<App position={selectionPosition} />, this.quill.container, this.quill.container.lastChild);
+                render(
+                    <HyperlinkingTooltip position={selectionPosition} />,
+                    this.quill.container,
+                    this.quill.container.lastChild,
+                );
+
+                this.quill.format('highlight', true);
             } else {
                 render(null, this.quill.container, this.quill.container.lastChild);
+
+                this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
             }
         }
     }

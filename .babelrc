@@ -1,5 +1,5 @@
 {
-  "presets": ["env", "preact"],
+  "presets": [["env", {"targets": {"node": "current"}, "modules": false}], "preact"],
   "plugins": [
     "transform-class-properties",
     "transform-object-rest-spread"
