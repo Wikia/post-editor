@@ -14,7 +14,7 @@ Quill.register({
     'formats/link': Link,
 });
 
-const URL_REGEX = /^(https?):\/\/[^\s/$.?#].[^\s]*$/i;
+const URL_REGEX = /^(http:\/\/|https:\/\/|www\.)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
 
 /* eslint-disable no-alert */
 export default class PostEditor extends Component {
@@ -70,7 +70,7 @@ export default class PostEditor extends Component {
 
         return (
             <div className="pe-wrapper">
-                <div id="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
+                <div className="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
                 {currentSelection && <HyperlinkingWrapper position={currentSelection} />}
                 <button type="button" onClick={() => this.insertLink(prompt('DEJ LINK'))}>
                     Highlight a link and click me {isLinkInvalid && 'Your link is invalid 🙈🙈🙈'}
