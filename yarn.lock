@@ -2501,17 +2501,17 @@ des.js@^1.0.0:
     inherits "^2.0.1"
     minimalistic-assert "^1.0.0"
 
-"design-system@git://github.com/Wikia/design-system.git#035570e38721f57b7ea7cd2b735ba1a041a57110":
-  version "13.8.2"
-  resolved "git://github.com/Wikia/design-system.git#035570e38721f57b7ea7cd2b735ba1a041a57110"
+"design-system@git://github.com/Wikia/design-system.git#12.0.0":
+  version "12.0.0"
+  resolved "git://github.com/Wikia/design-system.git#17f598b9c768c5eaa3b60fe105db3f0350e3c1f0"
+
+"design-system@git://github.com/Wikia/design-system.git#14.0.0":
+  version "14.0.0"
+  resolved "git://github.com/Wikia/design-system.git#472cdb2181d2347986a8575c7e5d340a327e1c24"
   dependencies:
     ember-autoresize "1.3.0"
     ember-cli-babel "6.12.0"
     ember-fetch "5.1.2"
-
-"design-system@git://github.com/Wikia/design-system.git#12.0.0":
-  version "12.0.0"
-  resolved "git://github.com/Wikia/design-system.git#17f598b9c768c5eaa3b60fe105db3f0350e3c1f0"
 
 destroy@^1.0.4:
   version "1.0.4"
