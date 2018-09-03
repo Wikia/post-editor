@@ -5,8 +5,8 @@ import tooltip from './Tooltip';
 
 import './IconTooltip.scss';
 
-const IconPopup = ({ onLinkClick }) => (
-    <WdsIconsLink onClick={onLinkClick} className="wds-icon pe-icon-tooltip" />
+const IconPopup = ({ onClick }) => (
+    <WdsIconsLink onClick={onClick} className="wds-icon pe-icon-tooltip" />
 );
 
 export default tooltip(IconPopup);

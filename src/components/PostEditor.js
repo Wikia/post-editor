@@ -14,81 +14,32 @@ Quill.register({
     'formats/link': Link,
 });
 
-const URL_REGEX = /^(http:\/\/|https:\/\/|www\.)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
-
 /* eslint-disable no-alert */
 export default class PostEditor extends Component {
     constructor(props) {
         super(props);
 
-        this.onHyperlinkingClose = this.onHyperlinkingClose.bind(this);
-        this.onDocumentClick = this.onDocumentClick.bind(this);
-        this.insertLink = this.insertLink.bind(this);
-
         this.quillContainer = null;
-        this.quill = null;
         this.state = {
-            currentSelection: null,
-            isLinkInvalid: false,
+            quill: null,
         };
     }
 
     componentDidMount() {
         const { options } = this.props;
 
-        this.setupQuill(options);
-        document.addEventListener('mousedown', this.onDocumentClick);
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener('mousedown', this.onDocumentClick);
-    }
-
-    onDocumentClick(event) {
-        const { currentSelection } = this.state;
-
-        if (!event.target.closest('.pe-hyperlinking') && currentSelection) {
-            this.onHyperlinkingClose();
-        }
-    }
-
-    onSelection(range) {
-        if (range) {
-            if (range.length > 0) {
-                this.setState({ currentSelection: this.quill.getBounds(range.index, range.length) });
-                this.quill.format('highlight', true);
-            }
-        }
-    }
-
-    onHyperlinkingClose() {
-        this.setState({ currentSelection: null, isLinkInvalid: false });
-        this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
-    }
-
-    setupQuill(options) {
-        this.quill = new Quill(this.quillContainer, options);
-
-        this.quill.on('selection-change', this.onSelection.bind(this));
-    }
-
-    insertLink(url) {
-        if (URL_REGEX.test(url)) {
-            this.quill.format('link', url);
-
-            this.setState({ currentSelection: null, isLinkInvalid: false });
-        } else {
-            this.setState({ isLinkInvalid: true });
-        }
+        this.setState({
+            quill: new Quill(this.quillContainer, options),
+        });
     }
 
     render() {
-        const { currentSelection, isLinkInvalid } = this.state;
+        const { quill } = this.state;
 
         return (
             <div className="pe-wrapper">
                 <div className="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
-                {currentSelection && <HyperlinkingWrapper position={currentSelection} onClose={this.onHyperlinkingClose} />}
+                {quill && <HyperlinkingWrapper quill={quill} />}
             </div>
         );
     }
