@@ -6,6 +6,12 @@ import InputTooltip from './InputTooltip';
 import './HyperlinkingWrapper.scss';
 
 const NOTCH_COMPENSATION = 20;
+const HYPERLINKING_STATE = {
+    INITIAL: null,
+    CREATE: 'CREATE',
+    EDIT: 'EDIT',
+};
+
 
 export default class HyperlinkingWrapper extends Component {
     static getComputedPosition(position) {
@@ -23,13 +29,13 @@ export default class HyperlinkingWrapper extends Component {
         this.remove = this.remove.bind(this);
 
         this.state = {
-            current: null,
+            current: HYPERLINKING_STATE.INITIAL,
         };
     }
 
     create() {
         this.setState({
-            current: 'create',
+            current: HYPERLINKING_STATE.CREATE,
         });
     }
 
@@ -50,7 +56,7 @@ export default class HyperlinkingWrapper extends Component {
     render() {
         const { position } = this.props;
         const { current } = this.state;
-        const isEdit = current === 'edit';
+        const isEdit = current === HYPERLINKING_STATE.EDIT;
         const computedPosition = HyperlinkingWrapper.getComputedPosition(position);
         const tooltip = !current ? (
             <IconTooltip

@@ -14,7 +14,7 @@ export default class PostEditor extends Component {
     constructor(props) {
         super(props);
 
-        this.close = this.close.bind(this);
+        this.onHyperlinkingClose = this.onHyperlinkingClose.bind(this);
         this.onDocumentClick = this.onDocumentClick.bind(this);
 
         this.quillContainer = null;
@@ -39,8 +39,7 @@ export default class PostEditor extends Component {
         const { currentSelection } = this.state;
 
         if (!event.target.closest('.pe-hyperlinking') && currentSelection) {
-            console.log('close');
-            this.close();
+            this.onHyperlinkingClose();
         }
     }
 
@@ -59,7 +58,7 @@ export default class PostEditor extends Component {
         this.quill.on('selection-change', this.onSelection.bind(this));
     }
 
-    close() {
+    onHyperlinkingClose() {
         this.setState({ currentSelection: null });
         this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
     }
@@ -70,7 +69,7 @@ export default class PostEditor extends Component {
         return (
             <div className="pe-wrapper">
                 <div id="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
-                {currentSelection && <HyperlinkingWrapper position={currentSelection} onClose={this.close} />}
+                {currentSelection && <HyperlinkingWrapper position={currentSelection} onClose={this.onHyperlinkingClose} />}
             </div>
         );
     }
