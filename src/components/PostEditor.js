@@ -52,15 +52,15 @@ export default class PostEditor extends Component {
         }
     }
 
+    onHyperlinkingClose() {
+        this.setState({ currentSelection: null });
+        this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
+    }
+
     setupQuill(options) {
         this.quill = new Quill(this.quillContainer, options);
 
         this.quill.on('selection-change', this.onSelection.bind(this));
-    }
-
-    onHyperlinkingClose() {
-        this.setState({ currentSelection: null });
-        this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
     }
 
     render() {
