@@ -47,7 +47,6 @@
       "error",
       "always-multiline"
     ],
-    "no-console": 0,
     "max-len": 0,
     "import/no-extraneous-dependencies": [
       "error",

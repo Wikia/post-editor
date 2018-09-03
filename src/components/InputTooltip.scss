@@ -1,0 +1,34 @@
+@import '~@wikia/react-design-system/src/components/Input/styles.scss';
+@import '~design-system/dist/scss/wds-variables/_colors.scss';
+@import '~design-system/dist/scss/wds-variables/_typography.scss';
+
+.pe-input-tooltip {
+	.wds-input {
+		margin: 0 0 6px;
+
+		&__field-wrapper {
+			border-bottom: 1px solid #c5ced9;
+			display: flex;
+		}
+
+		&__field {
+			border-bottom: 0;
+			flex: 1;
+			line-height: $wds-line-height-normal;
+			margin-right: 12px;
+		}
+	}
+
+	.wds-icon {
+		cursor: pointer;
+	}
+
+	&__accept {
+		color: $wds-color-success;
+	}
+
+	&__remove {
+		color: #ed1c24;
+		margin-right: 18px;
+	}
+}
