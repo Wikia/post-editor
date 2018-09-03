@@ -24,4 +24,8 @@ export default class Link extends Inline {
 
         return node;
     }
+
+    static formats(node) {
+        return node.getAttribute('href') || true;
+    }
 }
