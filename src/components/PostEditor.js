@@ -36,15 +36,12 @@ export default class PostEditor extends Component {
     }
 
     onDocumentClick(event) {
-        if (!event.target.closest('.pe-hyperlinking') && this.state.currentSelection) {
+        const { currentSelection } = this.state;
+
+        if (!event.target.closest('.pe-hyperlinking') && currentSelection) {
             console.log('close');
             this.close();
         }
-    }
-
-    close() {
-        this.setState({ currentSelection: null });
-        this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
     }
 
     onSelection(range) {
@@ -60,6 +57,11 @@ export default class PostEditor extends Component {
         this.quill = new Quill(this.quillContainer, options);
 
         this.quill.on('selection-change', this.onSelection.bind(this));
+    }
+
+    close() {
+        this.setState({ currentSelection: null });
+        this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
     }
 
     render() {
