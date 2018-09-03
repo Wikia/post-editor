@@ -14,6 +14,9 @@ export default class PostEditor extends Component {
     constructor(props) {
         super(props);
 
+        this.close = this.close.bind(this);
+        this.onDocumentClick = this.onDocumentClick.bind(this);
+
         this.quillContainer = null;
         this.quill = null;
         this.state = {
@@ -25,6 +28,23 @@ export default class PostEditor extends Component {
         const { options } = this.props;
 
         this.setupQuill(options);
+        document.addEventListener('mousedown', this.onDocumentClick);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('mousedown', this.onDocumentClick);
+    }
+
+    onDocumentClick(event) {
+        if (!event.target.closest('.pe-hyperlinking') && this.state.currentSelection) {
+            console.log('close');
+            this.close();
+        }
+    }
+
+    close() {
+        this.setState({ currentSelection: null });
+        this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
     }
 
     onSelection(range) {
@@ -32,9 +52,6 @@ export default class PostEditor extends Component {
             if (range.length > 0) {
                 this.setState({ currentSelection: this.quill.getBounds(range.index, range.length) });
                 this.quill.format('highlight', true);
-            } else {
-                this.setState({ currentSelection: null });
-                this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
             }
         }
     }
@@ -51,7 +68,7 @@ export default class PostEditor extends Component {
         return (
             <div className="pe-wrapper">
                 <div id="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
-                {currentSelection && <HyperlinkingWrapper position={currentSelection} />}
+                {currentSelection && <HyperlinkingWrapper position={currentSelection} onClose={this.close} />}
             </div>
         );
     }
