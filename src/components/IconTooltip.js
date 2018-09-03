@@ -1,12 +1,12 @@
 import { h } from 'preact';
-import WdsAvatarIconUser from 'design-system/dist/svg/wds-icons-link.svg';
+import WdsIconsLink from 'design-system/dist/svg/wds-icons-link.svg';
+
+import tooltip from './Tooltip';
 
 import './IconTooltip.scss';
 
-const IconPopup = ({ position }) => (
-    <div className="pe-tooltip" style={{ left: position.left, top: position.top }}>
-        <WdsAvatarIconUser />
-    </div>
+const IconPopup = ({ onLinkClick }) => (
+    <WdsIconsLink onClick={onLinkClick} className="wds-icon pe-icon-tooltip" />
 );
 
-export default IconPopup;
+export default tooltip(IconPopup);

@@ -14,6 +14,9 @@ export default class PostEditor extends Component {
     constructor(props) {
         super(props);
 
+        this.onHyperlinkingClose = this.onHyperlinkingClose.bind(this);
+        this.onDocumentClick = this.onDocumentClick.bind(this);
+
         this.quillContainer = null;
         this.quill = null;
         this.state = {
@@ -25,6 +28,19 @@ export default class PostEditor extends Component {
         const { options } = this.props;
 
         this.setupQuill(options);
+        document.addEventListener('mousedown', this.onDocumentClick);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('mousedown', this.onDocumentClick);
+    }
+
+    onDocumentClick(event) {
+        const { currentSelection } = this.state;
+
+        if (!event.target.closest('.pe-hyperlinking') && currentSelection) {
+            this.onHyperlinkingClose();
+        }
     }
 
     onSelection(range) {
@@ -32,11 +48,13 @@ export default class PostEditor extends Component {
             if (range.length > 0) {
                 this.setState({ currentSelection: this.quill.getBounds(range.index, range.length) });
                 this.quill.format('highlight', true);
-            } else {
-                this.setState({ currentSelection: null });
-                this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
             }
         }
+    }
+
+    onHyperlinkingClose() {
+        this.setState({ currentSelection: null });
+        this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
     }
 
     setupQuill(options) {
@@ -51,7 +69,7 @@ export default class PostEditor extends Component {
         return (
             <div className="pe-wrapper">
                 <div id="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
-                {currentSelection && <HyperlinkingWrapper position={currentSelection} />}
+                {currentSelection && <HyperlinkingWrapper position={currentSelection} onClose={this.onHyperlinkingClose} />}
             </div>
         );
     }

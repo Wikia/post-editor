@@ -12,3 +12,8 @@ Includes:
 # How to build
 - merge your PR
 - run `yarn release:xxx` (see `package.json` for details)
+
+# Dependencies
+- Fandom Design System styles:
+    - wds-icon (wds-components/_icons)
+- Browsers which support Element.closest or polyfill
