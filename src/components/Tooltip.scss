@@ -1,12 +1,13 @@
+@import 'variables';
+
 .pe-tooltip {
 	background-color: #fff;
 	border-radius: 2px;
 	box-shadow: 0 0 20px 0 rgba(26, 26, 26, .3);
-	padding: 12px;
+	padding: $tooltip-padding;
 	position: absolute;
-	transform: translateX(-50%);
 
-	&::after {
+	&__notch {
 		border: 8px solid transparent;
 		border-bottom-color: #fff;
 		content: '';

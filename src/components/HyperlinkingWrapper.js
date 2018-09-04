@@ -1,11 +1,15 @@
 import { h, Component } from 'preact';
 
+import { Range } from 'quill/core/selection';
+
 import IconTooltip from './IconTooltip';
 import InputTooltip from './InputTooltip';
 
 import './HyperlinkingWrapper.scss';
 
 const NOTCH_COMPENSATION = 20;
+const INPUT_TOOLTIP_WIDTH = 320;
+const ICON_TOOLTIP_WIDTH = 48; // 24px (.wds-icon) + 2 * 12px (padding of .pe-tooltip)
 const HYPERLINKING_STATE = {
     INITIAL: null,
     CREATE: 'CREATE',
@@ -15,13 +19,6 @@ const HYPERLINKING_STATE = {
 const URL_REGEX = /^(http:\/\/|https:\/\/|www\.)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
 
 export default class HyperlinkingWrapper extends Component {
-    static getComputedPosition(position) {
-        return {
-            top: position.bottom + NOTCH_COMPENSATION,
-            left: (position.left + position.right) / 2,
-        };
-    }
-
     constructor(props) {
         super(props);
 
@@ -61,7 +58,24 @@ export default class HyperlinkingWrapper extends Component {
     onSelection(range) {
         if (range) {
             if (range.length > 0) {
-                this.setState({ currentSelection: this.quill.getBounds(range.index, range.length) });
+                const lines = this.quill.getLines(range.index, range.length);
+                let currentSelection;
+
+                // gets bounds for last selected line
+                if (lines.length === 1) {
+                    currentSelection = this.quill.getBounds(range);
+                } else {
+                    const lastLine = lines[lines.length - 1];
+                    const index = this.quill.getIndex(lastLine);
+                    const length = Math.min(
+                        lastLine.length() - 1,
+                        range.index + range.length - index,
+                    );
+
+                    currentSelection = this.quill.getBounds(new Range(index, length));
+                }
+
+                this.setState({ currentSelection });
                 this.quill.format('highlight', true);
             }
         }
@@ -93,10 +107,30 @@ export default class HyperlinkingWrapper extends Component {
         this.onClose();
     }
 
+    getComputedPosition(position) {
+        const { current } = this.state;
+        const { offsetLeft, offsetTop } = this.quill.root.parentElement;
+        const centerOfSelection = (position.left + position.right) / 2;
+        const width = (current === HYPERLINKING_STATE.INITIAL) ? ICON_TOOLTIP_WIDTH : INPUT_TOOLTIP_WIDTH;
+        const defaultLeft = centerOfSelection - width / 2 + offsetLeft;
+        const left = Math.max(0, defaultLeft);
+        const notchLeft = left !== defaultLeft ? width / 2 + defaultLeft : '50%';
+
+        return {
+            tooltip: {
+                top: position.bottom + NOTCH_COMPENSATION + offsetTop,
+                left,
+            },
+            notch: {
+                left: notchLeft,
+            },
+        };
+    }
+
     renderTooltip() {
         const { current, isLinkInvalid, currentSelection } = this.state;
         const isEdit = current === HYPERLINKING_STATE.EDIT;
-        const computedPosition = HyperlinkingWrapper.getComputedPosition(currentSelection);
+        const computedPosition = this.getComputedPosition(currentSelection);
 
         return !current ? (
             <IconTooltip
