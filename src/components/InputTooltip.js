@@ -15,13 +15,13 @@ class InputTooltip extends Component {
     }
 
     render() {
-        const { onAccept, onRemove, isLinkInvalid } = this.props;
+        const { onAccept, onRemove, isLinkInvalid, linkValue } = this.props;
 
         return (
             <div className="pe-input-tooltip">
                 <div className="wds-input">
                     <div className="wds-input__field-wrapper">
-                        <input placeholder="URL" className="wds-input__field" ref={(el) => { this.input = el; }} />
+                        <input placeholder="URL" className="wds-input__field" ref={(el) => { this.input = el; }} value={linkValue} />
                         <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />
                         <WdsIconsCheckmarkSmall
                             onClick={() => onAccept(this.input.value)}

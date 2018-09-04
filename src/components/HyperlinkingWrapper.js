@@ -77,6 +77,14 @@ export default class HyperlinkingWrapper extends Component {
 
                 this.setState({ currentSelection });
                 this.quill.format('highlight', true);
+            } else {
+                const [blot, blotRange] = this.getBlotFromIndex(range.index);
+                const format = blot.formats() || {};
+                const hasFormatting = Object.keys(format).length > 0;
+
+                if (hasFormatting) {
+                    this.quill.setSelection(blotRange);
+                }
             }
         }
     }
@@ -104,7 +112,14 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     onRemove() {
+        this.quill.format('link', undefined);
         this.onClose();
+    }
+
+    getBlotFromIndex(index) {
+        const [blot, blotOffset] = this.quill.getLeaf(index);
+
+        return [blot.parent, new Range(index - blotOffset, blot.length())];
     }
 
     getComputedPosition(position) {
@@ -129,6 +144,8 @@ export default class HyperlinkingWrapper extends Component {
 
     renderTooltip() {
         const { current, isLinkInvalid, currentSelection } = this.state;
+        const format = this.quill.getFormat();
+        const linkValue = (typeof format.link === 'string') ? format.link : null;
         const isEdit = current === HYPERLINKING_STATE.EDIT;
         const computedPosition = this.getComputedPosition(currentSelection);
 
@@ -142,6 +159,7 @@ export default class HyperlinkingWrapper extends Component {
                 position={computedPosition}
                 isEdit={isEdit}
                 isLinkInvalid={isLinkInvalid}
+                linkValue={linkValue}
                 onAccept={this.onAccept}
                 onRemove={this.onRemove}
             />
