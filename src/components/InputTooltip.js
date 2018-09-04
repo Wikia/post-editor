@@ -16,20 +16,21 @@ class InputTooltip extends Component {
 
     render() {
         const { onAccept, onRemove, isLinkInvalid } = this.props;
+        const { i18n } = this.context;
 
         return (
             <div className="pe-input-tooltip">
                 <div className="wds-input">
                     <div className="wds-input__field-wrapper">
-                        <input placeholder="URL" className="wds-input__field" ref={(el) => { this.input = el; }} />
+                        <input placeholder={i18n['hyperlinking-placeholder']} className="wds-input__field" ref={(el) => { this.input = el; }} />
                         <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />
                         <WdsIconsCheckmarkSmall
                             onClick={() => onAccept(this.input.value)}
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"
                         />
-                        {isLinkInvalid && 'error'}
                     </div>
                 </div>
+                {isLinkInvalid && <span className="pe-input-tooltip__error">{i18n['hyperlinking-error']}</span>}
             </div>
         );
     }

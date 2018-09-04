@@ -31,4 +31,9 @@
 		color: #ed1c24;
 		margin-right: 18px;
 	}
+
+	&__error {
+		color: $wds-color-alert;
+		font-size: $wds-font-size-xs;
+	}
 }
