@@ -1,10 +1,14 @@
 @import '~@wikia/react-design-system/src/components/Input/styles.scss';
 @import '~design-system/dist/scss/wds-variables/_colors.scss';
 @import '~design-system/dist/scss/wds-variables/_typography.scss';
+@import 'variables';
 
 .pe-input-tooltip {
+	$input-tooltip-width: 320px;
+
 	.wds-input {
 		margin: 0 0 6px;
+		width: $input-tooltip-width - 2 * $tooltip-padding;
 
 		&__field-wrapper {
 			border-bottom: 1px solid #c5ced9;

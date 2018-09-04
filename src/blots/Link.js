@@ -1,7 +1,5 @@
 import Inline from 'quill/blots/inline';
 
-import './Link.scss';
-
 const FANDOM_DOMAINS_REGEX = /(fandom|wikia).com/i;
 
 export default class Link extends Inline {
