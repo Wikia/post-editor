@@ -33,7 +33,7 @@ export default class HyperlinkingWrapper extends Component {
 
         this.state = {
             current: HYPERLINKING_STATE.INITIAL,
-            currentSelection: null,
+            selectionBounds: null,
             isLinkInvalid: false,
         };
 
@@ -49,9 +49,9 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     onDocumentClick(event) {
-        const { currentSelection } = this.state;
+        const { selectionBounds } = this.state;
 
-        if (!event.target.closest('.pe-hyperlinking') && currentSelection) {
+        if (!event.target.closest('.pe-hyperlinking') && selectionBounds) {
             this.onClose();
         }
     }
@@ -61,11 +61,12 @@ export default class HyperlinkingWrapper extends Component {
             if (range.length > 0) {
                 const lines = this.quill.getLines(range.index, range.length);
                 const selectionFormat = this.quill.getFormat();
-                let currentSelection;
+
+                let selectionBounds;
 
                 // gets bounds for last selected line
                 if (lines.length === 1) {
-                    currentSelection = this.quill.getBounds(range);
+                    selectionBounds = this.quill.getBounds(range);
                 } else {
                     const lastLine = lines[lines.length - 1];
                     const index = this.quill.getIndex(lastLine);
@@ -74,10 +75,10 @@ export default class HyperlinkingWrapper extends Component {
                         range.index + range.length - index,
                     );
 
-                    currentSelection = this.quill.getBounds(new Range(index, length));
+                    selectionBounds = this.quill.getBounds(new Range(index, length));
                 }
 
-                this.setState({ currentSelection, selectionFormat });
+                this.setState({ selectionBounds, selectionFormat });
                 this.quill.format('highlight', true);
             } else {
                 const [blot, blotRange] = this.getBlotFromIndex(range.index);
@@ -92,9 +93,9 @@ export default class HyperlinkingWrapper extends Component {
 
     onClose() {
         this.setState({
-            currentSelection: null,
-            isLinkInvalid: false,
+            selectionBounds: null,
             selectionFormat: {},
+            isLinkInvalid: false,
             current: HYPERLINKING_STATE.INITIAL,
         });
         this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
@@ -109,8 +110,6 @@ export default class HyperlinkingWrapper extends Component {
     onAccept(url) {
         if (URL_REGEX.test(url)) {
             this.quill.format('link', url);
-
-            this.setState({ currentSelection: null, isLinkInvalid: false });
             this.onClose();
         } else {
             this.setState({ isLinkInvalid: true });
@@ -152,11 +151,11 @@ export default class HyperlinkingWrapper extends Component {
         const {
             current,
             isLinkInvalid,
-            currentSelection,
+            selectionBounds,
             selectionFormat,
         } = this.state;
         const isEdit = current === HYPERLINKING_STATE.EDIT;
-        const computedPosition = this.getComputedPosition(currentSelection);
+        const computedPosition = this.getComputedPosition(selectionBounds);
         const linkValue = Array.isArray(selectionFormat.link) ? null : selectionFormat.link;
 
         return !current ? (
@@ -177,9 +176,9 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     render() {
-        const { currentSelection } = this.state;
+        const { selectionBounds } = this.state;
 
-        if (!currentSelection) {
+        if (!selectionBounds) {
             return null;
         }
 
