@@ -3,18 +3,10 @@ import { Component } from 'preact';
 import getTranslations from '../utils/i18n';
 
 export default class I18nProvider extends Component {
-    constructor(props) {
-        super(props);
-
+    getChildContext() {
         const { language } = this.props;
 
-        this.state = { i18n: getTranslations(language) };
-    }
-
-    getChildContext() {
-        const { i18n } = this.state;
-
-        return { i18n };
+        return { i18n: getTranslations(language) };
     }
 
     render() {
