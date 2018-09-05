@@ -25,9 +25,8 @@
     "test": "yarn lint"
   },
   "dependencies": {
-    "@wikia/react-design-system": "Wikia/react-design-system",
     "autoprefixer": "^8.4.1",
-    "design-system": "git://github.com/Wikia/design-system.git#14.0.0",
+    "design-system": "git://github.com/Wikia/design-system.git#14.1.0",
     "html-webpack-plugin": "^3.2.0",
     "preact": "^8.2.9",
     "quill": "^1.3.6"
