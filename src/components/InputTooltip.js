@@ -16,6 +16,10 @@ class InputTooltip extends Component {
         this.onEnter = this.onEnter.bind(this);
     }
 
+    componentDidMount() {
+        this.input.focus();
+    }
+
     onEnter(event) {
         const { onAccept } = this.props;
         const ENTER_KEY_VALUE = 'Enter';
