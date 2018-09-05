@@ -17,6 +17,7 @@ const HYPERLINKING_STATE = {
 };
 
 const URL_REGEX = /^(http:\/\/|https:\/\/|www\.)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
+const AUTOSELECT_BLOT_TYPES = ['link'];
 
 export default class HyperlinkingWrapper extends Component {
     constructor(props) {
@@ -59,6 +60,7 @@ export default class HyperlinkingWrapper extends Component {
         if (range) {
             if (range.length > 0) {
                 const lines = this.quill.getLines(range.index, range.length);
+                const selectionFormat = this.quill.getFormat();
                 let currentSelection;
 
                 // gets bounds for last selected line
@@ -75,14 +77,13 @@ export default class HyperlinkingWrapper extends Component {
                     currentSelection = this.quill.getBounds(new Range(index, length));
                 }
 
-                this.setState({ currentSelection });
+                this.setState({ currentSelection, selectionFormat });
                 this.quill.format('highlight', true);
             } else {
                 const [blot, blotRange] = this.getBlotFromIndex(range.index);
-                const format = blot.formats() || {};
-                const hasFormatting = Object.keys(format).length > 0;
+                const allowAutoselect = AUTOSELECT_BLOT_TYPES.indexOf(blot.statics.blotName) !== -1;
 
-                if (hasFormatting) {
+                if (allowAutoselect) {
                     this.quill.setSelection(blotRange);
                 }
             }
@@ -90,7 +91,12 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     onClose() {
-        this.setState({ currentSelection: null, isLinkInvalid: false, current: HYPERLINKING_STATE.INITIAL });
+        this.setState({
+            currentSelection: null,
+            isLinkInvalid: false,
+            selectionFormat: {},
+            current: HYPERLINKING_STATE.INITIAL,
+        });
         this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
     }
 
@@ -143,11 +149,15 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     renderTooltip() {
-        const { current, isLinkInvalid, currentSelection } = this.state;
-        const format = this.quill.getFormat();
-        const linkValue = (typeof format.link === 'string') ? format.link : null;
+        const {
+            current,
+            isLinkInvalid,
+            currentSelection,
+            selectionFormat,
+        } = this.state;
         const isEdit = current === HYPERLINKING_STATE.EDIT;
         const computedPosition = this.getComputedPosition(currentSelection);
+        const linkValue = Array.isArray(selectionFormat.link) ? null : selectionFormat.link;
 
         return !current ? (
             <IconTooltip
