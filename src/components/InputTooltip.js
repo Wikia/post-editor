@@ -17,6 +17,10 @@ class InputTooltip extends Component {
         this.onKeyPress = this.onKeyPress.bind(this);
     }
 
+    componentDidMount() {
+        this.input.focus();
+    }
+
     onKeyPress(event) {
         const { onAccept } = this.props;
 
