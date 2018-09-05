@@ -51,7 +51,7 @@ class InputTooltip extends Component {
                             value={linkValue}
                             onKeyPress={this.onKeyPress}
                         />
-                        <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />
+                        {linkValue && <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />}
                         <WdsIconsCheckmarkSmall
                             onClick={() => onAccept(this.input.value)}
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"
