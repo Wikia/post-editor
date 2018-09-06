@@ -13,5 +13,6 @@
 }
 
 .pe-wrapper {
+	// to make sure we are always positioning editor tooltips relatively to the same element
 	position: relative;
 }
