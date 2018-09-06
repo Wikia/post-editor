@@ -37,6 +37,7 @@ class InputTooltip extends Component {
             onRemove,
             isLinkInvalid,
             linkValue,
+            isEdit,
         } = this.props;
         const { i18n } = this.context;
 
@@ -51,7 +52,7 @@ class InputTooltip extends Component {
                             value={linkValue}
                             onKeyPress={this.onKeyPress}
                         />
-                        {linkValue && <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />}
+                        {isEdit && <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />}
                         <WdsIconsCheckmarkSmall
                             onClick={() => onAccept(this.input.value)}
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"

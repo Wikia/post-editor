@@ -86,6 +86,10 @@ export default class HyperlinkingWrapper extends Component {
 
                 if (allowAutoselect) {
                     this.quill.setSelection(blotRange);
+
+                    this.setState({
+                        current: HYPERLINKING_STATE.EDIT,
+                    });
                 }
             }
         }
