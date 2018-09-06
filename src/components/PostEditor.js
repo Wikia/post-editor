@@ -26,19 +26,22 @@ export default class PostEditor extends Component {
     }
 
     componentDidMount() {
-        const { options } = this.props;
+        const { onCreate, quillConfig } = this.props;
+        const editorInstance = new Quill(this.quillContainer, quillConfig);
 
         this.setState({
-            quill: new Quill(this.quillContainer, options),
+            quill: editorInstance,
         });
+
+        onCreate(editorInstance);
     }
 
     render() {
         const { quill } = this.state;
-        const { options } = this.props;
+        const { language } = this.props;
 
         return (
-            <I18nProvider language={options.language}>
+            <I18nProvider language={language}>
                 <div className="pe-wrapper">
                     <div className="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
                     {quill && <HyperlinkingWrapper quill={quill} />}
@@ -47,3 +50,8 @@ export default class PostEditor extends Component {
         );
     }
 }
+
+PostEditor.defaultProps = {
+    onCreate: () => null,
+    quillConfig: {},
+};
