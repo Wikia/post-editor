@@ -17,6 +17,7 @@ const HYPERLINKING_STATE = {
 };
 
 const URL_REGEX = /^(http:\/\/|https:\/\/|www\.)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
+const AUTOSELECT_BLOT_TYPES = ['link'];
 
 export default class HyperlinkingWrapper extends Component {
     constructor(props) {
@@ -32,7 +33,7 @@ export default class HyperlinkingWrapper extends Component {
 
         this.state = {
             current: HYPERLINKING_STATE.INITIAL,
-            currentSelection: null,
+            selectionBounds: null,
             isLinkInvalid: false,
         };
 
@@ -48,9 +49,9 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     onDocumentClick(event) {
-        const { currentSelection } = this.state;
+        const { selectionBounds } = this.state;
 
-        if (!event.target.closest('.pe-hyperlinking') && currentSelection) {
+        if (!event.target.closest('.pe-hyperlinking') && selectionBounds) {
             this.onClose();
         }
     }
@@ -59,11 +60,13 @@ export default class HyperlinkingWrapper extends Component {
         if (range) {
             if (range.length > 0) {
                 const lines = this.quill.getLines(range.index, range.length);
-                let currentSelection;
+                const selectionFormat = this.quill.getFormat();
+
+                let selectionBounds;
 
                 // gets bounds for last selected line
                 if (lines.length === 1) {
-                    currentSelection = this.quill.getBounds(range);
+                    selectionBounds = this.quill.getBounds(range);
                 } else {
                     const lastLine = lines[lines.length - 1];
                     const index = this.quill.getIndex(lastLine);
@@ -72,17 +75,29 @@ export default class HyperlinkingWrapper extends Component {
                         range.index + range.length - index,
                     );
 
-                    currentSelection = this.quill.getBounds(new Range(index, length));
+                    selectionBounds = this.quill.getBounds(new Range(index, length));
                 }
 
-                this.setState({ currentSelection });
+                this.setState({ selectionBounds, selectionFormat });
                 this.quill.format('highlight', true);
+            } else {
+                const [blot, blotRange] = this.getBlotFromIndex(range.index);
+                const allowAutoselect = AUTOSELECT_BLOT_TYPES.indexOf(blot.statics.blotName) !== -1;
+
+                if (allowAutoselect) {
+                    this.quill.setSelection(blotRange);
+                }
             }
         }
     }
 
     onClose() {
-        this.setState({ currentSelection: null, isLinkInvalid: false, current: HYPERLINKING_STATE.INITIAL });
+        this.setState({
+            selectionBounds: null,
+            selectionFormat: {},
+            isLinkInvalid: false,
+            current: HYPERLINKING_STATE.INITIAL,
+        });
         this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
     }
 
@@ -95,8 +110,6 @@ export default class HyperlinkingWrapper extends Component {
     onAccept(url) {
         if (URL_REGEX.test(url)) {
             this.quill.format('link', url);
-
-            this.setState({ currentSelection: null, isLinkInvalid: false });
             this.onClose();
         } else {
             this.setState({ isLinkInvalid: true });
@@ -104,7 +117,14 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     onRemove() {
+        this.quill.format('link', undefined);
         this.onClose();
+    }
+
+    getBlotFromIndex(index) {
+        const [blot, blotOffset] = this.quill.getLeaf(index);
+
+        return [blot.parent, new Range(index - blotOffset, blot.length())];
     }
 
     getComputedPosition(position) {
@@ -128,9 +148,15 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     renderTooltip() {
-        const { current, isLinkInvalid, currentSelection } = this.state;
+        const {
+            current,
+            isLinkInvalid,
+            selectionBounds,
+            selectionFormat,
+        } = this.state;
         const isEdit = current === HYPERLINKING_STATE.EDIT;
-        const computedPosition = this.getComputedPosition(currentSelection);
+        const computedPosition = this.getComputedPosition(selectionBounds);
+        const linkValue = Array.isArray(selectionFormat.link) ? null : selectionFormat.link;
 
         return !current ? (
             <IconTooltip
@@ -142,6 +168,7 @@ export default class HyperlinkingWrapper extends Component {
                 position={computedPosition}
                 isEdit={isEdit}
                 isLinkInvalid={isLinkInvalid}
+                linkValue={linkValue}
                 onAccept={this.onAccept}
                 onRemove={this.onRemove}
             />
@@ -149,9 +176,9 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     render() {
-        const { currentSelection } = this.state;
+        const { selectionBounds } = this.state;
 
-        if (!currentSelection) {
+        if (!selectionBounds) {
             return null;
         }
 
