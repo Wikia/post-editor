@@ -144,7 +144,8 @@ export default class HyperlinkingWrapper extends Component {
         const centerOfSelection = (position.left + position.right) / 2;
         const width = (current === HYPERLINKING_STATE.INITIAL) ? ICON_TOOLTIP_WIDTH : INPUT_TOOLTIP_WIDTH;
         const defaultLeft = centerOfSelection - width / 2 + offsetLeft;
-        const left = Math.max(0, defaultLeft);
+        // add minimum 3px offset from the left edge
+        const left = Math.max(3, defaultLeft);
         const notchLeft = left !== defaultLeft ? width / 2 + defaultLeft : '50%';
 
         return {
