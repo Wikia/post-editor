@@ -79,6 +79,13 @@ export default class HyperlinkingWrapper extends Component {
                 }
 
                 this.setState({ selectionBounds, selectionFormat });
+
+                /**
+                 * on mobile it is possible to create new selection without removing old one first
+                 * to prevent creating multiple highlights we need to reset all of them and then add new
+                 */
+                this.resetHighlighting();
+
                 this.quill.format('highlight', true);
             } else {
                 const [blot, blotRange] = this.getBlotFromIndex(range.index);
@@ -86,6 +93,10 @@ export default class HyperlinkingWrapper extends Component {
 
                 if (allowAutoselect) {
                     this.quill.setSelection(blotRange);
+
+                    this.setState({
+                        current: HYPERLINKING_STATE.EDIT,
+                    });
                 }
             }
         }
@@ -98,7 +109,7 @@ export default class HyperlinkingWrapper extends Component {
             isLinkInvalid: false,
             current: HYPERLINKING_STATE.INITIAL,
         });
-        this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
+        this.resetHighlighting();
     }
 
     onCreate() {
@@ -145,6 +156,10 @@ export default class HyperlinkingWrapper extends Component {
                 left: notchLeft,
             },
         };
+    }
+
+    resetHighlighting() {
+        this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
     }
 
     renderTooltip() {
