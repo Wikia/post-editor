@@ -10,8 +10,11 @@
   <body>
     <div id="quill-root"></div>
 
-    <script type="text/javascript">
-        postEditor.default(document.querySelector('#quill-root'), {language: 'EN'})
-    </script>
+	<script type="text/javascript">
+        postEditor.default(
+            document.querySelector('#quill-root'),
+            { language: 'EN', onCreate: () => console.log('Up & running!') },
+        );
+	</script>
   </body>
 </html>
