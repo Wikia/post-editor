@@ -1,12 +1,16 @@
 $highlight-color: rgba(0, 183, 224, .3);
+$highlight-selection-color: transparent;
 
 .pe-highlight {
 	background-color: $highlight-color;
 	font-weight: normal;
 	outline: 2px solid $highlight-color;
 
-	&::selection,
+	&::selection {
+		background: $highlight-selection-color;
+	}
+
 	&::-moz-selection {
-		background: $highlight-color;
+		background: $highlight-selection-color;
 	}
 }
