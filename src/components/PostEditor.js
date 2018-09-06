@@ -53,5 +53,6 @@ export default class PostEditor extends Component {
 
 PostEditor.defaultProps = {
     onCreate: () => null,
+    language: '',
     quillConfig: {},
 };
