@@ -76,6 +76,13 @@ export default class HyperlinkingWrapper extends Component {
                 }
 
                 this.setState({ currentSelection });
+
+                /**
+                 * on mobile it is possible to create new selection without removing old one first
+                 * to prevent creating multiple highlights we need to reset all of them and then add new
+                 */
+                this.resetHighlighting();
+
                 this.quill.format('highlight', true);
             }
         }
@@ -83,7 +90,7 @@ export default class HyperlinkingWrapper extends Component {
 
     onClose() {
         this.setState({ currentSelection: null, isLinkInvalid: false, current: HYPERLINKING_STATE.INITIAL });
-        this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
+        this.resetHighlighting();
     }
 
     onCreate() {
@@ -107,9 +114,25 @@ export default class HyperlinkingWrapper extends Component {
         this.onClose();
     }
 
+    /**
+     * moves tooltip down if we are almost sure that native copy/paste popup is showing below the selection
+     * @param top
+     * @return {number}
+     */
+    getExtraOffset(top) {
+        if (window.navigator.userAgent.match(/(iPhone|iPad)/i) && top < 50) {
+            return 50;
+        }
+
+        return 0;
+    }
+
     getComputedPosition(position) {
         const { current } = this.state;
-        const { offsetLeft, offsetTop } = this.quill.root.parentElement;
+        const element = this.quill.root.parentElement;
+        const { offsetLeft, offsetTop } = element;
+        // position of the selection from the top of the viewport
+        const positionTopRelativeToViewport = element.getBoundingClientRect().top + position.top;
         const centerOfSelection = (position.left + position.right) / 2;
         const width = (current === HYPERLINKING_STATE.INITIAL) ? ICON_TOOLTIP_WIDTH : INPUT_TOOLTIP_WIDTH;
         const defaultLeft = centerOfSelection - width / 2 + offsetLeft;
@@ -118,13 +141,17 @@ export default class HyperlinkingWrapper extends Component {
 
         return {
             tooltip: {
-                top: position.bottom + NOTCH_COMPENSATION + offsetTop,
+                top: position.bottom + NOTCH_COMPENSATION + offsetTop + this.getExtraOffset(positionTopRelativeToViewport),
                 left,
             },
             notch: {
                 left: notchLeft,
             },
         };
+    }
+
+    resetHighlighting() {
+        this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
     }
 
     renderTooltip() {
