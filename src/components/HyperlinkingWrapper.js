@@ -146,7 +146,8 @@ export default class HyperlinkingWrapper extends Component {
         const defaultLeft = centerOfSelection - width / 2 + offsetLeft;
         // add minimum 3px offset from the left edge
         const left = Math.max(3, defaultLeft);
-        const notchLeft = left !== defaultLeft ? width / 2 + defaultLeft : '50%';
+        // add minimum 10px offset (8px compensation of negative left margin plus 2px border-radius of tooltip)
+        const notchLeft = left !== defaultLeft ? Math.max(10, width / 2 + defaultLeft) : '50%';
 
         return {
             tooltip: {
