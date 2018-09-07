@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const autoprefixer = require('autoprefixer');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const browsers = [
     'last 2 chrome versions',
@@ -19,6 +20,13 @@ if (isDevelopment) {
             inject: 'head',
             template: 'index.html',
         }),
+    );
+
+    plugins.push(
+        new BundleAnalyzerPlugin({
+            analyzerMode: 'static',
+            openAnalyzer: false,
+        })
     );
 
     additionalOptions = {
