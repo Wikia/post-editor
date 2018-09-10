@@ -1,11 +1,10 @@
-@import 'variables';
-
 .pe-tooltip {
 	background-color: #fff;
 	border-radius: 2px;
 	box-shadow: 0 0 20px 0 rgba(26, 26, 26, .3);
 	padding: $tooltip-padding;
 	position: absolute;
+	z-index: 2;
 
 	&__notch {
 		border: 8px solid transparent;
@@ -18,6 +17,5 @@
 		position: absolute;
 		top: -16px;
 		width: 0;
-		z-index: 2;
 	}
 }

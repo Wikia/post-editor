@@ -2,6 +2,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const cssnano = require('cssnano');
 
 const browsers = [
     'last 2 chrome versions',
@@ -78,6 +79,9 @@ module.exports = {
                                     cascade: false,
                                     browsers: browsers.join(', '),
                                 }),
+                                cssnano({
+                                    preset: 'default',
+                                }),
                             ],
                         },
                     },
@@ -85,6 +89,16 @@ module.exports = {
                         loader: 'sass-loader',
                         options: {
                             sourceMap: isDevelopment,
+                        },
+                    },
+                    {
+                        loader: 'sass-resources-loader',
+                        options: {
+                            resources: [
+                                './node_modules/design-system/dist/scss/wds-variables/index.scss',
+                                './node_modules/design-system/dist/scss/wds-mixins/index.scss',
+                                './src/styles/variables.scss',
+                            ],
                         },
                     },
                 ],
