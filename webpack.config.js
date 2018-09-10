@@ -20,13 +20,10 @@ if (isDevelopment) {
             inject: 'head',
             template: 'index.html',
         }),
-    );
-
-    plugins.push(
         new BundleAnalyzerPlugin({
             analyzerMode: 'static',
             openAnalyzer: false,
-        })
+        }),
     );
 
     additionalOptions = {
