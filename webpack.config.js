@@ -1,5 +1,7 @@
+/* eslint-disable import/no-extraneous-dependencies */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const autoprefixer = require('autoprefixer');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const cssnano = require('cssnano');
 
 const browsers = [
@@ -19,6 +21,10 @@ if (isDevelopment) {
         new HtmlWebpackPlugin({
             inject: 'head',
             template: 'index.html',
+        }),
+        new BundleAnalyzerPlugin({
+            analyzerMode: 'static',
+            openAnalyzer: false,
         }),
     );
 
