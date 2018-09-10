@@ -27,6 +27,9 @@ class InputTooltip extends Component {
         const { onAccept } = this.props;
 
         if (event.key === ENTER_KEY) {
+            // Enter key may cause unexpected form submission
+            event.preventDefault();
+
             onAccept(this.input.value);
         }
     }
