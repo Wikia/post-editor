@@ -32,7 +32,8 @@ export default class Link extends Inline {
             this.domNode.classList.add('pe-highlight');
         } else {
             this.domNode.classList.remove('pe-highlight');
-            super.format(name, value);
         }
+
+        super.format(name, value);
     }
 }
