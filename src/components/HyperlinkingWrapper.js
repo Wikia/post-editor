@@ -60,6 +60,10 @@ export default class HyperlinkingWrapper extends Component {
     onTextChange(delta, oldContents, source) {
         const { current } = this.state;
 
+        /**
+         * close hyperlinking tooltip when user starts typing while creating a link
+         * that prevents highlighting the text when user starts typing when text is selected
+         */
         if (current !== HYPERLINKING_STATE.EDIT && source === 'user') {
             this.onClose();
         }
@@ -186,7 +190,7 @@ export default class HyperlinkingWrapper extends Component {
         const { blotToEdit } = this.state;
         const objectToFormat = blotToEdit || this.quill;
 
-        objectToFormat.format('link', url || undefined);
+        objectToFormat.format('link', url);
     }
 
     resetHighlighting() {
