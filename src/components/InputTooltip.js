@@ -20,7 +20,11 @@ class InputTooltip extends Component {
     }
 
     componentDidMount() {
-        this.input.focus();
+        const { isEdit } = this.props;
+
+        if (!isEdit) {
+            this.input.focus();
+        }
     }
 
     onKeyPress(event) {

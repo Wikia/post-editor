@@ -26,4 +26,13 @@ export default class Link extends Inline {
     static formats(node) {
         return node.getAttribute('href') || true;
     }
+
+    format(name, value) {
+        if (name === 'active' && value) {
+            this.domNode.classList.add('pe-highlight');
+        } else {
+            this.domNode.classList.remove('pe-highlight');
+            super.format(name, value);
+        }
+    }
 }
