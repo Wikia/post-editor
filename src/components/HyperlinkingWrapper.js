@@ -17,7 +17,6 @@ const HYPERLINKING_STATE = {
 };
 
 const URL_REGEX = /^(http:\/\/|https:\/\/|www\.)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
-const AUTOSELECT_BLOT_TYPES = ['link'];
 
 export default class HyperlinkingWrapper extends Component {
     constructor(props) {
@@ -35,9 +34,11 @@ export default class HyperlinkingWrapper extends Component {
             current: HYPERLINKING_STATE.INITIAL,
             selectionBounds: null,
             isLinkInvalid: false,
+            linkValue: '',
         };
 
         this.quill.on('selection-change', this.onSelection.bind(this));
+        this.quill.on('text-change', this.onTextChange.bind(this));
     }
 
     componentDidMount() {
@@ -56,11 +57,22 @@ export default class HyperlinkingWrapper extends Component {
         }
     }
 
+    onTextChange(delta, oldContents, source) {
+        const { current } = this.state;
+
+        /**
+         * close hyperlinking tooltip when user starts typing while creating a link
+         * that prevents highlighting the text when user starts typing when text is selected
+         */
+        if (current !== HYPERLINKING_STATE.EDIT && source === 'user') {
+            this.onClose();
+        }
+    }
+
     onSelection(range) {
         if (range) {
             if (range.length > 0) {
                 const lines = this.quill.getLines(range.index, range.length);
-                const selectionFormat = this.quill.getFormat();
 
                 let selectionBounds;
 
@@ -78,7 +90,7 @@ export default class HyperlinkingWrapper extends Component {
                     selectionBounds = this.quill.getBounds(new Range(index, length));
                 }
 
-                this.setState({ selectionBounds, selectionFormat });
+                this.setState({ selectionBounds });
 
                 /**
                  * on mobile it is possible to create new selection without removing old one first
@@ -88,26 +100,39 @@ export default class HyperlinkingWrapper extends Component {
 
                 this.quill.format('highlight', true);
             } else {
-                const [blot, blotRange] = this.getBlotFromIndex(range.index);
-                const allowAutoselect = AUTOSELECT_BLOT_TYPES.indexOf(blot.statics.blotName) !== -1;
+                const [blotToEdit, blotRange] = this.getBlotFromIndex(range.index);
 
-                if (allowAutoselect) {
-                    this.quill.setSelection(blotRange);
+                if (blotToEdit.statics.blotName === 'link') {
+                    const linkValue = blotToEdit.formats().link;
+
+                    blotToEdit.format('active', true);
 
                     this.setState({
+                        blotToEdit,
                         current: HYPERLINKING_STATE.EDIT,
+                        linkValue,
+                        selectionBounds: this.quill.getBounds(blotRange),
                     });
+                } else {
+                    this.onClose();
                 }
             }
         }
     }
 
     onClose() {
+        const { blotToEdit } = this.state;
+
+        if (blotToEdit) {
+            blotToEdit.format('active', false);
+        }
+
         this.setState({
             selectionBounds: null,
-            selectionFormat: {},
             isLinkInvalid: false,
             current: HYPERLINKING_STATE.INITIAL,
+            linkValue: '',
+            blotToEdit: undefined,
         });
         this.resetHighlighting();
     }
@@ -120,7 +145,8 @@ export default class HyperlinkingWrapper extends Component {
 
     onAccept(url) {
         if (URL_REGEX.test(url)) {
-            this.quill.format('link', url);
+            this.formatLink(url);
+
             this.onClose();
         } else {
             this.setState({ isLinkInvalid: true });
@@ -128,7 +154,7 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     onRemove() {
-        this.quill.format('link', undefined);
+        this.formatLink(undefined);
         this.onClose();
     }
 
@@ -160,6 +186,13 @@ export default class HyperlinkingWrapper extends Component {
         };
     }
 
+    formatLink(url) {
+        const { blotToEdit } = this.state;
+        const objectToFormat = blotToEdit || this.quill;
+
+        objectToFormat.format('link', url);
+    }
+
     resetHighlighting() {
         this.quill.formatText(0, this.quill.getLength(), 'highlight', false);
     }
@@ -169,11 +202,10 @@ export default class HyperlinkingWrapper extends Component {
             current,
             isLinkInvalid,
             selectionBounds,
-            selectionFormat,
+            linkValue,
         } = this.state;
         const isEdit = current === HYPERLINKING_STATE.EDIT;
         const computedPosition = this.getComputedPosition(selectionBounds);
-        const linkValue = Array.isArray(selectionFormat.link) ? null : selectionFormat.link;
 
         return !current ? (
             <IconTooltip
