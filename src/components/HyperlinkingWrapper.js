@@ -16,8 +16,6 @@ const HYPERLINKING_STATE = {
     EDIT: 'EDIT',
 };
 
-const URL_REGEX = /^(http:\/\/|https:\/\/|www\.)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
-
 export default class HyperlinkingWrapper extends Component {
     constructor(props) {
         super(props);
@@ -33,7 +31,6 @@ export default class HyperlinkingWrapper extends Component {
         this.state = {
             current: HYPERLINKING_STATE.INITIAL,
             selectionBounds: null,
-            isLinkInvalid: false,
             linkValue: '',
         };
 
@@ -129,7 +126,6 @@ export default class HyperlinkingWrapper extends Component {
 
         this.setState({
             selectionBounds: null,
-            isLinkInvalid: false,
             current: HYPERLINKING_STATE.INITIAL,
             linkValue: '',
             blotToEdit: undefined,
@@ -144,13 +140,8 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     onAccept(url) {
-        if (URL_REGEX.test(url)) {
-            this.formatLink(url);
-
-            this.onClose();
-        } else {
-            this.setState({ isLinkInvalid: true });
-        }
+        this.formatLink(url);
+        this.onClose();
     }
 
     onRemove() {
@@ -200,7 +191,6 @@ export default class HyperlinkingWrapper extends Component {
     renderTooltip() {
         const {
             current,
-            isLinkInvalid,
             selectionBounds,
             linkValue,
         } = this.state;
@@ -216,7 +206,6 @@ export default class HyperlinkingWrapper extends Component {
             <InputTooltip
                 position={computedPosition}
                 isEdit={isEdit}
-                isLinkInvalid={isLinkInvalid}
                 linkValue={linkValue}
                 onAccept={this.onAccept}
                 onRemove={this.onRemove}
