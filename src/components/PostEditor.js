@@ -27,13 +27,19 @@ export default class PostEditor extends Component {
 
     componentDidMount() {
         const { onCreate, quillConfig } = this.props;
-        const editorInstance = new Quill(this.quillContainer, quillConfig);
+        const quill = new Quill(this.quillContainer, quillConfig);
 
         this.setState({
-            quill: editorInstance,
+            quill,
         });
 
-        onCreate(editorInstance);
+        onCreate({
+            quill,
+            getHTML: () => quill.root.innerHTML,
+            setHTML: (html) => {
+                quill.root.innerHTML = html;
+            },
+        });
     }
 
     render() {
