@@ -26,6 +26,7 @@ export default class HyperlinkingWrapper extends Component {
         this.onCreate = this.onCreate.bind(this);
         this.onAccept = this.onAccept.bind(this);
         this.onRemove = this.onRemove.bind(this);
+        this.onLinkChange = this.onLinkChange.bind(this);
         this.onClose = this.onClose.bind(this);
         this.onDocumentClick = this.onDocumentClick.bind(this);
 
@@ -140,6 +141,10 @@ export default class HyperlinkingWrapper extends Component {
         });
     }
 
+    onLinkChange({ target: { value } }) {
+        this.setState({ linkValue: value });
+    }
+
     onAccept(url) {
         this.formatLink(url);
         this.onClose();
@@ -237,6 +242,7 @@ export default class HyperlinkingWrapper extends Component {
                 isEdit={isEdit}
                 linkValue={linkValue}
                 onAccept={this.onAccept}
+                onInput={this.onLinkChange}
                 onRemove={this.onRemove}
             />
         );

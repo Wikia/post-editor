@@ -11,7 +11,7 @@ export default class Link extends Inline {
         const node = super.create();
         let relValue = 'noreferrer noopener';
 
-        node.setAttribute('href', value);
+        node.setAttribute('href', this.getNormalizedUrl(value));
 
         if (!FANDOM_DOMAINS_REGEX.test(node.hostname)) {
             relValue = `${relValue} nofollow`;
@@ -35,5 +35,9 @@ export default class Link extends Inline {
         }
 
         super.format(name, value);
+    }
+
+    getNormalizedUrl(url) {
+        return !url.match(/^https?:\/\//) ? `http://${url}` : url;
     }
 }
