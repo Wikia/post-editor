@@ -55,7 +55,7 @@ class InputTooltip extends Component {
         onInput(event);
     }
 
-    onAccept(url) {
+    accept(url) {
         const { onAccept } = this.props;
 
         if (this.isValidUrl(url)) {
@@ -88,7 +88,7 @@ class InputTooltip extends Component {
                         />
                         {isEdit && <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />}
                         <WdsIconsCheckmarkSmall
-                            onClick={() => this.onAccept(linkValue)}
+                            onClick={() => this.accept(linkValue)}
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"
                         />
                     </div>
