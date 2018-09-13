@@ -1,4 +1,4 @@
 {
-    "hyperlinking-placeholder": "URL", 
-    "hyperlinking-error": "The URL is invalid, please try a different one."
+  "hyperlinking-error": "Adres URL jest nieprawidłowy, proszę wybrać inny.", 
+  "hyperlinking-placeholder": "URL"
 }
