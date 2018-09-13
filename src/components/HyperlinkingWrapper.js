@@ -159,10 +159,13 @@ export default class HyperlinkingWrapper extends Component {
         const { current } = this.state;
         const { offsetLeft, offsetTop, offsetWidth } = this.quill.root.parentElement;
         const centerOfSelection = (position.left + position.right) / 2;
-        const width = (current === HYPERLINKING_STATE.INITIAL) ? ICON_TOOLTIP_WIDTH : INPUT_TOOLTIP_WIDTH;
-        const defaultLeft = centerOfSelection - width / 2 + offsetLeft;
         // add minimum 3px offset from the left or right edge
         const minOffset = 3;
+        const defaultTooltipWidth = (current === HYPERLINKING_STATE.INITIAL) ? ICON_TOOLTIP_WIDTH : INPUT_TOOLTIP_WIDTH;
+        // tooltip should not be wider than width of the editor minus offset
+        const maxWidth = offsetWidth - 2 * minOffset;
+        const width = Math.min(defaultTooltipWidth, maxWidth);
+        const defaultLeft = centerOfSelection - width / 2 + offsetLeft;
         const maxLeft = offsetWidth - width - minOffset;
         const left = Math.max(minOffset, Math.min(defaultLeft, maxLeft));
         const leftDiff = defaultLeft - left;
@@ -173,6 +176,7 @@ export default class HyperlinkingWrapper extends Component {
             tooltip: {
                 top: position.bottom + NOTCH_COMPENSATION + offsetTop,
                 left,
+                width,
             },
             notch: {
                 left: notchLeft,
