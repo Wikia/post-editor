@@ -1,4 +1,4 @@
 {
-    "hyperlinking-placeholder": "URL", 
-    "hyperlinking-error": "\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 URL-\u0430\u0434\u0440\u0435\u0441. \u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0434\u0440\u0443\u0433\u043e\u0439 URL."
+  "hyperlinking-error": "Неверный URL-адрес. Выберите другой URL.", 
+  "hyperlinking-placeholder": "URL"
 }

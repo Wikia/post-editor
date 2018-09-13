@@ -1,4 +1,4 @@
 {
-    "hyperlinking-placeholder": "URL", 
-    "hyperlinking-error": "\u9019\u500b\u7db2\u5740\u7121\u6548\uff0c\u8acb\u5617\u8a66\u5176\u4ed6\u7684\u3002"
+  "hyperlinking-error": "這個網址無效，請嘗試其他的。", 
+  "hyperlinking-placeholder": "URL"
 }
