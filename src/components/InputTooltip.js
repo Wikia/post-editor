@@ -13,12 +13,6 @@ const ENTER_KEY = 'Enter';
 const URL_REGEX = /^(http:\/\/|https:\/\/|www\.)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
 
 class InputTooltip extends Component {
-    static getDerivedStateFromProps({ linkValue }, { inputValue }) {
-        return {
-            inputValue: inputValue || linkValue,
-        };
-    }
-
     constructor(props) {
         super(props);
 
@@ -40,44 +34,44 @@ class InputTooltip extends Component {
     }
 
     onKeyPress(event) {
-        const { inputValue } = this.state;
+        const { linkValue } = this.props;
 
         if (event.key === ENTER_KEY) {
             // Enter key may cause unexpected form submission
             event.preventDefault();
 
-            this.accept(inputValue);
+            this.onAccept(linkValue);
         }
     }
 
-    onInput({ target: { value } }) {
-        this.setState({
-            inputValue: value,
-        });
+    onInput(event) {
+        const { onInput } = this.props;
+        const { isLinkInvalid } = this.state;
+
+        if (isLinkInvalid && this.isValidUrl(event.target.value)) {
+            this.setState({ isLinkInvalid: false });
+        }
+
+        onInput(event);
     }
 
-    accept(url) {
+    onAccept(url) {
         const { onAccept } = this.props;
 
-        if (URL_REGEX.test(url)) {
-            let urlToFormat = url;
-
-            if (!url.match(/^https?:\/\//)) {
-                urlToFormat = `http://${url}`;
-            }
-
-            onAccept(urlToFormat);
+        if (this.isValidUrl(url)) {
+            onAccept(url);
         } else {
             this.setState({ isLinkInvalid: true });
         }
     }
 
+    isValidUrl(url) {
+        return URL_REGEX.test(url);
+    }
+
     render() {
-        const {
-            onRemove,
-            isEdit,
-        } = this.props;
-        const { isLinkInvalid, inputValue } = this.state;
+        const { onRemove, isEdit, linkValue } = this.props;
+        const { isLinkInvalid } = this.state;
         const { i18n } = this.context;
 
         return (
@@ -88,13 +82,13 @@ class InputTooltip extends Component {
                             placeholder={i18n['hyperlinking-placeholder']}
                             className="wds-input__field"
                             ref={(el) => { this.input = el; }}
-                            value={inputValue}
+                            value={linkValue}
                             onInput={this.onInput}
                             onKeyPress={this.onKeyPress}
                         />
                         {isEdit && <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />}
                         <WdsIconsCheckmarkSmall
-                            onClick={() => this.accept(inputValue)}
+                            onClick={() => this.onAccept(linkValue)}
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"
                         />
                     </div>
