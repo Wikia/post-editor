@@ -10,6 +10,7 @@ import './HyperlinkingWrapper.scss';
 const NOTCH_COMPENSATION = 20;
 const INPUT_TOOLTIP_WIDTH = 320;
 const ICON_TOOLTIP_WIDTH = 48; // 24px (.wds-icon) + 2 * 12px (padding of .pe-tooltip)
+const MIN_OFFSET = 3; // add minimum 3px offset from the left or right edge
 const HYPERLINKING_STATE = {
     INITIAL: null,
     CREATE: 'CREATE',
@@ -155,24 +156,52 @@ export default class HyperlinkingWrapper extends Component {
         return [blot.parent, new Range(index - blotOffset, blot.length())];
     }
 
-    getComputedPosition(position) {
+    getComputedWidth() {
         const { current } = this.state;
-        const { offsetLeft, offsetTop } = this.quill.root.parentElement;
-        const centerOfSelection = (position.left + position.right) / 2;
-        const width = (current === HYPERLINKING_STATE.INITIAL) ? ICON_TOOLTIP_WIDTH : INPUT_TOOLTIP_WIDTH;
-        const defaultLeft = centerOfSelection - width / 2 + offsetLeft;
-        // add minimum 3px offset from the left edge
-        const left = Math.max(3, defaultLeft);
+        const { offsetWidth } = this.quill.root.parentElement;
+        const defaultWidth = (current === HYPERLINKING_STATE.INITIAL) ? ICON_TOOLTIP_WIDTH : INPUT_TOOLTIP_WIDTH;
+        // tooltip should not be wider than width of the editor minus offset
+        const maxWidth = offsetWidth - 2 * MIN_OFFSET;
+
+        return Math.min(defaultWidth, maxWidth);
+    }
+
+    getComputedTop(bottom) {
+        const { offsetTop } = this.quill.root.parentElement;
+
+        return bottom + NOTCH_COMPENSATION + offsetTop;
+    }
+
+    getComputedLeft(defaultLeft, width) {
+        const { offsetWidth } = this.quill.root.parentElement;
+        const maxLeft = offsetWidth - width - MIN_OFFSET;
+
+        return Math.max(MIN_OFFSET, Math.min(defaultLeft, maxLeft));
+    }
+
+    getComputedNotchLeft(defaultLeft, left, width) {
+        const leftDiff = defaultLeft - left;
+
         // add minimum 10px offset (8px compensation of negative left margin plus 2px border-radius of tooltip)
-        const notchLeft = left !== defaultLeft ? Math.max(10, width / 2 + defaultLeft) : '50%';
+        return left !== defaultLeft ? Math.max(10, Math.min(width / 2 + leftDiff, width - 10)) : '50%';
+    }
+
+    getComputedPosition(position) {
+        const { offsetLeft } = this.quill.root.parentElement;
+        const centerOfSelection = (position.left + position.right) / 2;
+        const width = this.getComputedWidth();
+        const defaultLeft = centerOfSelection - width / 2 + offsetLeft;
+        const left = this.getComputedLeft(defaultLeft, width);
+        const top = this.getComputedTop(position.bottom);
 
         return {
             tooltip: {
-                top: position.bottom + NOTCH_COMPENSATION + offsetTop,
                 left,
+                top,
+                width,
             },
             notch: {
-                left: notchLeft,
+                left: this.getComputedNotchLeft(defaultLeft, left, width),
             },
         };
     }

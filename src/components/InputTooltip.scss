@@ -1,9 +1,6 @@
 .pe-input-tooltip {
-	$input-tooltip-width: 320px;
-
 	.wds-input {
 		margin: 0 0 6px;
-		width: $input-tooltip-width - 2 * $tooltip-padding;
 
 		&.has-error {
 			margin-bottom: 15px;
