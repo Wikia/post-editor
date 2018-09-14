@@ -5,7 +5,7 @@
 		margin: 0 0 6px;
 
 		&.has-error {
-			margin-bottom: 15px;
+			margin-bottom: 0;
 		}
 
 		&__field-wrapper {
@@ -50,7 +50,7 @@
 		}
 	}
 
-	&:not(.has-suggestions) &__suggestions {
+	&:not(.wds-is-active):hover &__suggestions {
 		display: none !important;
 	}
 }

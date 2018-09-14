@@ -11,7 +11,7 @@ export default class Link extends Inline {
         const node = super.create();
         let relValue = 'noreferrer noopener';
 
-        node.setAttribute('href', this.getNormalizedUrl(value));
+        node.setAttribute('href', Link.getNormalizedUrl(value));
 
         if (!FANDOM_DOMAINS_REGEX.test(node.hostname)) {
             relValue = `${relValue} nofollow`;
@@ -27,6 +27,10 @@ export default class Link extends Inline {
         return node.getAttribute('href') || true;
     }
 
+    static getNormalizedUrl(url) {
+        return !url.match(/^https?:\/\//) ? `http://${url}` : url;
+    }
+
     format(name, value) {
         if (name === 'active' && value) {
             this.domNode.classList.add('pe-highlight');
@@ -35,9 +39,5 @@ export default class Link extends Inline {
         }
 
         super.format(name, value);
-    }
-
-    getNormalizedUrl(url) {
-        return !url.match(/^https?:\/\//) ? `http://${url}` : url;
     }
 }

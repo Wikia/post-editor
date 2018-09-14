@@ -11,7 +11,6 @@ import tooltip from './Tooltip';
 
 import './InputTooltip.scss';
 
-const ENTER_KEY = 'Enter';
 const DEBOUNCE_INTERVAL = 300;
 const URL_REGEX = /^(http:\/\/|https:\/\/|www\.)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
 
@@ -46,7 +45,7 @@ class InputTooltip extends Component {
     onKeyPress(event) {
         const { linkValue } = this.props;
 
-        if (event.key === ENTER_KEY) {
+        if (event.key === 'Enter') {
             // Enter key may cause unexpected form submission
             event.preventDefault();
 
@@ -55,13 +54,13 @@ class InputTooltip extends Component {
     }
 
     onKeyDown(event) {
-        const { keyCode } = event;
+        const { key } = event;
         const { selectedSuggestionIndex, suggestions } = this.state;
 
-        if (keyCode === 40 && selectedSuggestionIndex < suggestions.length - 1) {
+        if (key === 'ArrowDown' && selectedSuggestionIndex < suggestions.length - 1) {
             event.preventDefault();
             this.setState({ selectedSuggestionIndex: selectedSuggestionIndex + 1 });
-        } else if (keyCode === 38 && selectedSuggestionIndex > -1) {
+        } else if (key === 'ArrowUp' && selectedSuggestionIndex > -1) {
             event.preventDefault();
             this.setState({ selectedSuggestionIndex: selectedSuggestionIndex - 1 });
         }
@@ -114,9 +113,10 @@ class InputTooltip extends Component {
 
     accept(url) {
         const { onAccept } = this.props;
+        const trimmedUrl = url.trim();
 
-        if (this.isValidUrl(url)) {
-            onAccept(url);
+        if (this.isValidUrl(trimmedUrl)) {
+            onAccept(trimmedUrl);
         } else {
             this.setState({ isLinkInvalid: true });
         }
@@ -160,12 +160,12 @@ class InputTooltip extends Component {
 
     render() {
         const { onRemove, isEdit, linkValue } = this.props;
-        const { isLinkInvalid, suggestions } = this.state;
+        const { isLinkInvalid, suggestions, isError } = this.state;
         const { i18n } = this.context;
 
         return (
-            <div className={cls('pe-input-tooltip wds-dropdown wds-is-active wds-no-chevron', suggestions.length
-                && 'has-suggestions')}
+            <div className={cls('pe-input-tooltip wds-dropdown wds-no-chevron', suggestions.length
+                && 'wds-is-active')}
             >
                 <div className={cls('wds-input', isLinkInvalid && 'has-error')}>
                     <div className="wds-input__field-wrapper">
@@ -189,7 +189,8 @@ class InputTooltip extends Component {
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"
                         />
                     </div>
-                    {isLinkInvalid && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
+                    {/* fixme error message should be different for isError = true */}
+                    {(isLinkInvalid || isError) && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
                 </div>
                 {linkValue && (
                     <div className="pe-input-tooltip__suggestions wds-dropdown__content wds-is-not-scrollable">
