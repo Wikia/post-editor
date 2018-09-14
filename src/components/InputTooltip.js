@@ -1,4 +1,5 @@
 import { h, Component } from 'preact';
+import debounce from 'debounce';
 
 import WdsIconsTrashSmall from 'design-system/dist/svg/wds-icons-trash-small.svg';
 import WdsIconsCheckmarkSmall from 'design-system/dist/svg/wds-icons-checkmark-small.svg';
@@ -11,6 +12,7 @@ import tooltip from './Tooltip';
 import './InputTooltip.scss';
 
 const ENTER_KEY = 'Enter';
+const DEBOUNCE_INTERVAL = 300;
 const URL_REGEX = /^(http:\/\/|https:\/\/|www\.)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
 
 class InputTooltip extends Component {
@@ -19,6 +21,7 @@ class InputTooltip extends Component {
 
         this.state = {
             isLinkInvalid: false,
+            isError: false,
             suggestions: [],
             selectedSuggestionIndex: -1,
         };
@@ -28,6 +31,7 @@ class InputTooltip extends Component {
         this.onKeyPress = this.onKeyPress.bind(this);
         this.onInput = this.onInput.bind(this);
         this.onSuggestionsItemMouseEnter = this.onSuggestionsItemMouseEnter.bind(this);
+        this.getSuggestions = debounce(this.getSuggestions.bind(this), DEBOUNCE_INTERVAL);
     }
 
     componentDidMount() {
@@ -86,15 +90,14 @@ class InputTooltip extends Component {
     getSuggestions(value) {
         const { siteId } = this.props;
 
+        // API accepts queries that are at least 3-characters long
         if (value.length < 3) {
             return;
         }
 
         callArticleTitles(siteId, value)
             .then(({ suggestions }) => this.setState({ suggestions }))
-            .catch(err => {
-                console.log('#######', 'err', err);
-            });
+            .catch(() => this.setState({ isError: true }));
     }
 
     accept(url) {
