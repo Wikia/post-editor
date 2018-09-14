@@ -5,7 +5,7 @@ import WdsIconsTrashSmall from 'design-system/dist/svg/wds-icons-trash-small.svg
 import WdsIconsCheckmarkSmall from 'design-system/dist/svg/wds-icons-checkmark-small.svg';
 
 import cls from '../utils/cls';
-import callArticleTitles from '../utils/api';
+import getArticleTitles from '../utils/api';
 
 import tooltip from './Tooltip';
 
@@ -100,7 +100,7 @@ class InputTooltip extends Component {
         if (cachedResults[query]) {
             this.setState({ suggestions: cachedResults[query] });
         } else {
-            callArticleTitles(suggestionsApiUrl, query)
+            getArticleTitles(suggestionsApiUrl, query)
                 .then(({ suggestions }) => {
                     this.setState(prevState => ({
                         suggestions,
@@ -123,10 +123,8 @@ class InputTooltip extends Component {
     }
 
     splitText(textToSplit, query) {
-        const escapedQuery = query.trim()
-                                  .replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-        const matchedIndex = textToSplit.toLowerCase()
-                                        .indexOf(escapedQuery);
+        const escapedQuery = query.trim().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const matchedIndex = textToSplit.toLowerCase().indexOf(escapedQuery);
         const matched = textToSplit.substr(matchedIndex, escapedQuery.length);
         const notMatched = textToSplit.substr(matchedIndex + escapedQuery.length);
 
@@ -164,9 +162,7 @@ class InputTooltip extends Component {
         const { i18n } = this.context;
 
         return (
-            <div className={cls('pe-input-tooltip wds-dropdown wds-no-chevron', suggestions.length
-                && 'wds-is-active')}
-            >
+            <div className={cls('pe-input-tooltip wds-dropdown wds-no-chevron', suggestions.length && 'wds-is-active')}>
                 <div className={cls('wds-input', isLinkInvalid && 'has-error')}>
                     <div className="wds-input__field-wrapper">
                         <input

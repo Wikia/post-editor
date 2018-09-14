@@ -1,4 +1,4 @@
-export default function callArticleTitles(apiUrl, query) {
+export default function getArticleTitles(apiUrl, query) {
     return window
         .fetch(`${apiUrl}?query=${query}`)
         .then((response) => {
