@@ -24,6 +24,7 @@ class InputTooltip extends Component {
             isError: false,
             suggestions: [],
             selectedSuggestionIndex: -1,
+            cachedResults: {},
         };
 
         this.input = null;
@@ -64,7 +65,6 @@ class InputTooltip extends Component {
             event.preventDefault();
             this.setState({ selectedSuggestionIndex: selectedSuggestionIndex - 1 });
         }
-
     }
 
     onSuggestionsItemMouseEnter(index) {
@@ -89,15 +89,27 @@ class InputTooltip extends Component {
 
     getSuggestions(query) {
         const { suggestionsApiUrl } = this.props;
+        const { cachedResults } = this.state;
 
         // API accepts queries that are at least 3-characters long
         if (query.length < 3) {
+            this.setState({ suggestions: [] });
+
             return;
         }
 
-        callArticleTitles(suggestionsApiUrl, query)
-            .then(({ suggestions }) => this.setState({ suggestions }))
-            .catch(() => this.setState({ isError: true }));
+        if (cachedResults[query]) {
+            this.setState({ suggestions: cachedResults[query] });
+        } else {
+            callArticleTitles(suggestionsApiUrl, query)
+                .then(({ suggestions }) => {
+                    this.setState(prevState => ({
+                        suggestions,
+                        cachedResults: { ...prevState.cachedResults, [query]: suggestions },
+                    }));
+                })
+                .catch(() => this.setState({ isError: true }));
+        }
     }
 
     accept(url) {
@@ -111,8 +123,10 @@ class InputTooltip extends Component {
     }
 
     splitText(textToSplit, query) {
-        const escapedQuery = query.trim().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-        const matchedIndex = textToSplit.toLowerCase().indexOf(escapedQuery);
+        const escapedQuery = query.trim()
+                                  .replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const matchedIndex = textToSplit.toLowerCase()
+                                        .indexOf(escapedQuery);
         const matched = textToSplit.substr(matchedIndex, escapedQuery.length);
         const notMatched = textToSplit.substr(matchedIndex + escapedQuery.length);
 
@@ -150,7 +164,9 @@ class InputTooltip extends Component {
         const { i18n } = this.context;
 
         return (
-            <div className={cls('pe-input-tooltip wds-dropdown wds-is-active wds-no-chevron', suggestions.length && 'has-suggestions')}>
+            <div className={cls('pe-input-tooltip wds-dropdown wds-is-active wds-no-chevron', suggestions.length
+                && 'has-suggestions')}
+            >
                 <div className={cls('wds-input', isLinkInvalid && 'has-error')}>
                     <div className="wds-input__field-wrapper">
                         <input
