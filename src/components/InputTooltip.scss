@@ -1,4 +1,6 @@
 .pe-input-tooltip {
+	display: block;
+
 	.wds-input {
 		margin: 0 0 6px;
 
@@ -30,5 +32,25 @@
 	&__remove {
 		color: #ed1c24;
 		margin-right: 18px;
+	}
+
+	&__suggestions.wds-dropdown__content {
+		background-color: $wds-fandom-color-light-gray;
+		border: 0;
+		border-radius: 0;
+		box-shadow: 0 8px 12px 0 rgba(0, 0, 0, .3);
+		left: 0;
+		right: 0;
+		top: calc(100% + 1px);
+		transform: none;
+
+		.wds-list.wds-is-linked > li:hover:not(.wds-is-selected) > a {
+			background-color: inherit;
+			color: inherit;
+		}
+	}
+
+	&:not(.wds-is-active):hover &__suggestions {
+		display: none !important;
 	}
 }

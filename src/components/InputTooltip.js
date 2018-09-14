@@ -11,7 +11,6 @@ import tooltip from './Tooltip';
 
 import './InputTooltip.scss';
 
-const ENTER_KEY = 'Enter';
 const DEBOUNCE_INTERVAL = 300;
 const URL_REGEX = /^(http:\/\/|https:\/\/|www\.)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
 
@@ -23,11 +22,14 @@ class InputTooltip extends Component {
             isLinkInvalid: false,
             isError: false,
             suggestions: [],
+            selectedSuggestionIndex: -1,
         };
 
         this.input = null;
+        this.onKeyDown = this.onKeyDown.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
         this.onInput = this.onInput.bind(this);
+        this.onSuggestionsItemMouseEnter = this.onSuggestionsItemMouseEnter.bind(this);
         this.getSuggestions = debounce(this.getSuggestions.bind(this), DEBOUNCE_INTERVAL);
     }
 
@@ -42,12 +44,31 @@ class InputTooltip extends Component {
     onKeyPress(event) {
         const { linkValue } = this.props;
 
-        if (event.key === ENTER_KEY) {
+        if (event.key === 'Enter') {
             // Enter key may cause unexpected form submission
             event.preventDefault();
 
             this.accept(linkValue);
         }
+    }
+
+    onKeyDown(event) {
+        const { key } = event;
+        const { selectedSuggestionIndex, suggestions } = this.state;
+
+        if (key === 'ArrowDown' && selectedSuggestionIndex < suggestions.length - 1) {
+            event.preventDefault();
+            this.setState({ selectedSuggestionIndex: selectedSuggestionIndex + 1 });
+        } else if (key === 'ArrowUp' && selectedSuggestionIndex > -1) {
+            event.preventDefault();
+            this.setState({ selectedSuggestionIndex: selectedSuggestionIndex - 1 });
+        }
+    }
+
+    onSuggestionsItemMouseEnter(index) {
+        this.setState({
+            selectedSuggestionIndex: index,
+        });
     }
 
     onInput(event) {
@@ -93,11 +114,16 @@ class InputTooltip extends Component {
 
     render() {
         const { onRemove, isEdit, linkValue } = this.props;
-        const { isLinkInvalid, suggestions } = this.state;
+        const {
+            isLinkInvalid,
+            selectedSuggestionIndex,
+            suggestions,
+            isError,
+        } = this.state;
         const { i18n } = this.context;
 
         return (
-            <div className="pe-input-tooltip">
+            <div className={cls('pe-input-tooltip wds-dropdown wds-no-chevron', suggestions.length && 'wds-is-active')}>
                 <div className={cls('wds-input', isLinkInvalid && 'has-error')}>
                     <div className="wds-input__field-wrapper">
                         <input
@@ -107,6 +133,7 @@ class InputTooltip extends Component {
                             value={linkValue}
                             onInput={this.onInput}
                             onKeyPress={this.onKeyPress}
+                            onKeyDown={this.onKeyDown}
                         />
                         {isEdit && <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />}
                         <WdsIconsCheckmarkSmall
@@ -114,9 +141,14 @@ class InputTooltip extends Component {
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"
                         />
                     </div>
-                    {isLinkInvalid && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
+                    {/* fixme error message should be different for isError = true */}
+                    {(isLinkInvalid || isError) && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
                 </div>
-                {suggestions.map(el => <span>{el.title}</span>)}
+                <div className="pe-input-tooltip__suggestions wds-dropdown__content wds-is-not-scrollable">
+                    <ul className="wds-list wds-is-linked">
+                        {suggestions.map((el, index) => (<li className={selectedSuggestionIndex === index && 'wds-is-selected'} onMouseEnter={this.onSuggestionsItemMouseEnter.bind(this, index)}><a href={el.url} onClick={event => event.preventDefault()}>{el.title}</a></li>))}
+                    </ul>
+                </div>
             </div>
         );
     }
