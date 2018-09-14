@@ -46,7 +46,7 @@ class InputTooltip extends Component {
             // Enter key may cause unexpected form submission
             event.preventDefault();
 
-            this.onAccept(linkValue);
+            this.accept(linkValue);
         }
     }
 
