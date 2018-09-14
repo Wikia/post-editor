@@ -57,9 +57,10 @@ class InputTooltip extends Component {
 
     accept(url) {
         const { onAccept } = this.props;
+        const trimmedUrl = url.trim();
 
-        if (this.isValidUrl(url)) {
-            onAccept(url);
+        if (this.isValidUrl(trimmedUrl)) {
+            onAccept(trimmedUrl);
         } else {
             this.setState({ isLinkInvalid: true });
         }
