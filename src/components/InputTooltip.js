@@ -87,15 +87,15 @@ class InputTooltip extends Component {
         this.getSuggestions(value);
     }
 
-    getSuggestions(value) {
-        const { siteId } = this.props;
+    getSuggestions(query) {
+        const { suggestionsApiUrl } = this.props;
 
         // API accepts queries that are at least 3-characters long
-        if (value.length < 3) {
+        if (query.length < 3) {
             return;
         }
 
-        callArticleTitles(siteId, value)
+        callArticleTitles(suggestionsApiUrl, query)
             .then(({ suggestions }) => this.setState({ suggestions }))
             .catch(() => this.setState({ isError: true }));
     }
@@ -110,13 +110,43 @@ class InputTooltip extends Component {
         }
     }
 
+    splitText(textToSplit, query) {
+        const escapedQuery = query.trim().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const matchedIndex = textToSplit.toLowerCase().indexOf(escapedQuery);
+        const matched = textToSplit.substr(matchedIndex, escapedQuery.length);
+        const notMatched = textToSplit.substr(matchedIndex + escapedQuery.length);
+
+        return matchedIndex === -1 ? [textToSplit] : [notMatched, matched];
+    }
+
     isValidUrl(url) {
         return URL_REGEX.test(url);
     }
 
+    renderSuggestions() {
+        const { selectedSuggestionIndex, suggestions } = this.state;
+        const { linkValue } = this.props;
+
+        return suggestions.map(({ url, title }, index) => {
+            const [notMatched, matched] = this.splitText(title, linkValue);
+
+            return (
+                <li
+                    className={selectedSuggestionIndex === index && 'wds-is-selected'}
+                    onMouseEnter={this.onSuggestionsItemMouseEnter.bind(this, index)}
+                    key={url}
+                >
+                    <a href={url} onClick={event => event.preventDefault()}>
+                        {matched && <strong>{matched}</strong>}{notMatched}
+                    </a>
+                </li>
+            );
+        });
+    }
+
     render() {
         const { onRemove, isEdit, linkValue } = this.props;
-        const { isLinkInvalid, selectedSuggestionIndex, suggestions } = this.state;
+        const { isLinkInvalid, suggestions } = this.state;
         const { i18n } = this.context;
 
         return (
@@ -132,7 +162,12 @@ class InputTooltip extends Component {
                             onKeyPress={this.onKeyPress}
                             onKeyDown={this.onKeyDown}
                         />
-                        {isEdit && <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />}
+                        {isEdit && (
+                            <WdsIconsTrashSmall
+                                onClick={onRemove}
+                                className="wds-icon wds-icon-small pe-input-tooltip__remove"
+                            />
+                        )}
                         <WdsIconsCheckmarkSmall
                             onClick={() => this.accept(linkValue)}
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"
@@ -140,11 +175,13 @@ class InputTooltip extends Component {
                     </div>
                     {isLinkInvalid && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
                 </div>
-                <div className="pe-input-tooltip__suggestions wds-dropdown__content wds-is-not-scrollable">
-                    <ul className="wds-list wds-is-linked">
-                        {suggestions.map((el, index) => (<li className={selectedSuggestionIndex === index && 'wds-is-selected'} onMouseEnter={this.onSuggestionsItemMouseEnter.bind(this, index)}><a href={el.url} onClick={event => event.preventDefault()}>{el.title}</a></li>))}
-                    </ul>
-                </div>
+                {linkValue && (
+                    <div className="pe-input-tooltip__suggestions wds-dropdown__content wds-is-not-scrollable">
+                        <ul className="wds-list wds-is-linked">
+                            {this.renderSuggestions()}
+                        </ul>
+                    </div>
+                )}
             </div>
         );
     }

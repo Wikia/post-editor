@@ -1,6 +1,6 @@
-export default function callArticleTitles(siteId, query) {
+export default function callArticleTitles(apiUrl, query) {
     return window
-        .fetch(getUrl(siteId, query))
+        .fetch(`${apiUrl}?query=${query}`)
         .then((response) => {
             if (response.ok) {
                 return response.json();
@@ -9,5 +9,3 @@ export default function callArticleTitles(siteId, query) {
             throw response;
         });
 }
-
-const getUrl = (siteId, query) => `https://services.wikia.com/discussion/${siteId}/article-titles?query=${query}`;

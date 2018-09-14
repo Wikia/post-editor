@@ -19,3 +19,4 @@ Includes:
 - Fandom Design System styles:
     - wds-icon (wds-components/_icons)
 - Browsers which support Element.closest or polyfill
+- whatwg-fetch polyfill (eg. [this one](https://github.com/github/fetch)) (see [docs](https://github.com/whatwg/fetch) for details
