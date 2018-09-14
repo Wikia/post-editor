@@ -18,4 +18,5 @@ Includes:
 # Dependencies
 - Fandom Design System styles:
     - wds-icon (wds-components/_icons)
+    - wds-dropdown (wds-components/_drowdowns)
 - Browsers which support Element.closest or polyfill
