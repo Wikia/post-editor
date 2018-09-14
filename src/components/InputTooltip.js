@@ -64,7 +64,6 @@ class InputTooltip extends Component {
             event.preventDefault();
             this.setState({ selectedSuggestionIndex: selectedSuggestionIndex - 1 });
         }
-
     }
 
     onSuggestionsItemMouseEnter(index) {
@@ -116,7 +115,12 @@ class InputTooltip extends Component {
 
     render() {
         const { onRemove, isEdit, linkValue } = this.props;
-        const { isLinkInvalid, selectedSuggestionIndex, suggestions } = this.state;
+        const {
+            isLinkInvalid,
+            selectedSuggestionIndex,
+            suggestions,
+            isError,
+        } = this.state;
         const { i18n } = this.context;
 
         return (
@@ -138,7 +142,8 @@ class InputTooltip extends Component {
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"
                         />
                     </div>
-                    {isLinkInvalid && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
+                    {/* fixme error message should be different for isError = true */}
+                    {(isLinkInvalid || isError) && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
                 </div>
                 <div className="pe-input-tooltip__suggestions wds-dropdown__content wds-is-not-scrollable">
                     <ul className="wds-list wds-is-linked">
