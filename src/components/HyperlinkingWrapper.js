@@ -6,9 +6,6 @@ import IconTooltip from './IconTooltip';
 import InputTooltip from './InputTooltip';
 
 import './HyperlinkingWrapper.scss';
-import withSuggestions from './hoc/withSuggestions';
-
-import callArticleTitles from '../utils/api';
 
 const NOTCH_COMPENSATION = 20;
 const INPUT_TOOLTIP_WIDTH = 320;
@@ -37,7 +34,6 @@ export default class HyperlinkingWrapper extends Component {
             current: HYPERLINKING_STATE.INITIAL,
             selectionBounds: null,
             linkValue: '',
-            suggestions: [],
         };
 
         this.quill.on('selection-change', this.onSelection.bind(this));
@@ -147,16 +143,6 @@ export default class HyperlinkingWrapper extends Component {
 
     onLinkChange({ target: { value } }) {
         this.setState({ linkValue: value });
-
-        callArticleTitles(3035, value)
-            .then(({ suggestions }) => {
-                this.setState({ suggestions }, () => {
-                    console.log('#######', 'after', suggestions);
-                });
-            })
-            .catch(err => {
-                console.log('#######', 'err', err);
-            });
     }
 
     onAccept(url) {
@@ -241,12 +227,10 @@ export default class HyperlinkingWrapper extends Component {
             current,
             selectionBounds,
             linkValue,
-            suggestions,
         } = this.state;
         const { siteId } = this.props;
         const isEdit = current === HYPERLINKING_STATE.EDIT;
         const computedPosition = this.getComputedPosition(selectionBounds);
-        const InputWithSuggestions = withSuggestions(InputTooltip);
 
         return !current ? (
             <IconTooltip
@@ -254,7 +238,7 @@ export default class HyperlinkingWrapper extends Component {
                 onClick={this.onCreate}
             />
         ) : (
-            <InputWithSuggestions
+            <InputTooltip
                 position={computedPosition}
                 isEdit={isEdit}
                 linkValue={linkValue}
@@ -262,7 +246,6 @@ export default class HyperlinkingWrapper extends Component {
                 onAccept={this.onAccept}
                 onInput={this.onLinkChange}
                 onRemove={this.onRemove}
-                suggestions={suggestions}
             />
         );
     }

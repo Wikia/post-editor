@@ -4,6 +4,7 @@ import WdsIconsTrashSmall from 'design-system/dist/svg/wds-icons-trash-small.svg
 import WdsIconsCheckmarkSmall from 'design-system/dist/svg/wds-icons-checkmark-small.svg';
 
 import cls from '../utils/cls';
+import callArticleTitles from '../utils/api';
 
 import tooltip from './Tooltip';
 
@@ -18,6 +19,7 @@ class InputTooltip extends Component {
 
         this.state = {
             isLinkInvalid: false,
+            suggestions: []
         };
 
         this.input = null;
@@ -47,12 +49,29 @@ class InputTooltip extends Component {
     onInput(event) {
         const { onInput } = this.props;
         const { isLinkInvalid } = this.state;
+        const { value } = event.target;
 
-        if (isLinkInvalid && this.isValidUrl(event.target.value)) {
+        if (isLinkInvalid && this.isValidUrl(value)) {
             this.setState({ isLinkInvalid: false });
         }
 
         onInput(event);
+
+        this.getSuggestions(value);
+    }
+
+    getSuggestions(value) {
+        const { siteId } = this.props;
+
+        if (value.length < 3) {
+            return;
+        }
+
+        callArticleTitles(siteId, value)
+            .then(({ suggestions }) => this.setState({ suggestions }))
+            .catch(err => {
+                console.log('#######', 'err', err);
+            });
     }
 
     accept(url) {
@@ -71,7 +90,7 @@ class InputTooltip extends Component {
 
     render() {
         const { onRemove, isEdit, linkValue } = this.props;
-        const { isLinkInvalid } = this.state;
+        const { isLinkInvalid, suggestions } = this.state;
         const { i18n } = this.context;
 
         return (
@@ -94,6 +113,7 @@ class InputTooltip extends Component {
                     </div>
                     {isLinkInvalid && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
                 </div>
+                {suggestions.map(el => <span>{el.title}</span>)}
             </div>
         );
     }
