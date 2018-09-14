@@ -19,12 +19,15 @@ class InputTooltip extends Component {
 
         this.state = {
             isLinkInvalid: false,
-            suggestions: []
+            suggestions: [],
+            selectedSuggestionIndex: -1,
         };
 
         this.input = null;
+        this.onKeyDown = this.onKeyDown.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
         this.onInput = this.onInput.bind(this);
+        this.onSuggestionsItemMouseEnter = this.onSuggestionsItemMouseEnter.bind(this);
     }
 
     componentDidMount() {
@@ -42,8 +45,28 @@ class InputTooltip extends Component {
             // Enter key may cause unexpected form submission
             event.preventDefault();
 
-            this.onAccept(linkValue);
+            this.accept(linkValue);
         }
+    }
+
+    onKeyDown(event) {
+        const { keyCode } = event;
+        const { selectedSuggestionIndex, suggestions } = this.state;
+
+        if (keyCode === 40 && selectedSuggestionIndex < suggestions.length - 1) {
+            event.preventDefault();
+            this.setState({ selectedSuggestionIndex: selectedSuggestionIndex + 1 });
+        } else if (keyCode === 38 && selectedSuggestionIndex > -1) {
+            event.preventDefault();
+            this.setState({ selectedSuggestionIndex: selectedSuggestionIndex - 1 });
+        }
+
+    }
+
+    onSuggestionsItemMouseEnter(index) {
+        this.setState({
+            selectedSuggestionIndex: index,
+        });
     }
 
     onInput(event) {
@@ -90,11 +113,11 @@ class InputTooltip extends Component {
 
     render() {
         const { onRemove, isEdit, linkValue } = this.props;
-        const { isLinkInvalid, suggestions } = this.state;
+        const { isLinkInvalid, selectedSuggestionIndex, suggestions } = this.state;
         const { i18n } = this.context;
 
         return (
-            <div className="pe-input-tooltip">
+            <div className={cls('pe-input-tooltip wds-dropdown wds-is-active wds-no-chevron', suggestions.length && 'has-suggestions')}>
                 <div className={cls('wds-input', isLinkInvalid && 'has-error')}>
                     <div className="wds-input__field-wrapper">
                         <input
@@ -104,6 +127,7 @@ class InputTooltip extends Component {
                             value={linkValue}
                             onInput={this.onInput}
                             onKeyPress={this.onKeyPress}
+                            onKeyDown={this.onKeyDown}
                         />
                         {isEdit && <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />}
                         <WdsIconsCheckmarkSmall
@@ -113,7 +137,11 @@ class InputTooltip extends Component {
                     </div>
                     {isLinkInvalid && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
                 </div>
-                {suggestions.map(el => <span>{el.title}</span>)}
+                <div className="pe-input-tooltip__suggestions wds-dropdown__content wds-is-not-scrollable">
+                    <ul className="wds-list wds-is-linked">
+                        {suggestions.map((el, index) => (<li className={selectedSuggestionIndex === index && 'wds-is-selected'} onMouseEnter={this.onSuggestionsItemMouseEnter.bind(this, index)}><a href={el.url} onClick={event => event.preventDefault()}>{el.title}</a></li>))}
+                    </ul>
+                </div>
             </div>
         );
     }
