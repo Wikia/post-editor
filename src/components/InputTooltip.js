@@ -5,7 +5,7 @@ import WdsIconsTrashSmall from 'design-system/dist/svg/wds-icons-trash-small.svg
 import WdsIconsCheckmarkSmall from 'design-system/dist/svg/wds-icons-checkmark-small.svg';
 
 import cls from '../utils/cls';
-import callArticleTitles from '../utils/api';
+import getArticleTitles from '../utils/api';
 
 import tooltip from './Tooltip';
 
@@ -23,6 +23,7 @@ class InputTooltip extends Component {
             isError: false,
             suggestions: [],
             selectedSuggestionIndex: -1,
+            cachedResults: {},
         };
 
         this.input = null;
@@ -87,15 +88,27 @@ class InputTooltip extends Component {
 
     getSuggestions(query) {
         const { suggestionsApiUrl } = this.props;
+        const { cachedResults } = this.state;
 
         // API accepts queries that are at least 3-characters long
         if (query.length < 3) {
+            this.setState({ suggestions: [] });
+
             return;
         }
 
-        callArticleTitles(suggestionsApiUrl, query)
-            .then(({ suggestions }) => this.setState({ suggestions }))
-            .catch(() => this.setState({ isError: true }));
+        if (cachedResults[query]) {
+            this.setState({ suggestions: cachedResults[query] });
+        } else {
+            getArticleTitles(suggestionsApiUrl, query)
+                .then(({ suggestions }) => {
+                    this.setState(prevState => ({
+                        suggestions,
+                        cachedResults: { ...prevState.cachedResults, [query]: suggestions },
+                    }));
+                })
+                .catch(() => this.setState({ isError: true }));
+        }
     }
 
     accept(url) {
