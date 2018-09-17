@@ -44,13 +44,13 @@ export default class PostEditor extends Component {
 
     render() {
         const { quill } = this.state;
-        const { language, siteId } = this.props;
+        const { language, suggestionsApiUrl } = this.props;
 
         return (
             <I18nProvider language={language}>
                 <div className="pe-wrapper">
                     <div className="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
-                    {quill && <HyperlinkingWrapper quill={quill} siteId={siteId} />}
+                    {quill && <HyperlinkingWrapper quill={quill} suggestionsApiUrl={suggestionsApiUrl} />}
                 </div>
             </I18nProvider>
         );

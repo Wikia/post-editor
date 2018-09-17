@@ -13,7 +13,11 @@
 	<script type="text/javascript">
         postEditor.default(
             document.querySelector('#quill-root'),
-            { language: 'EN', onCreate: () => console.log('Up & running!'), siteId: '3035' },
+            {
+                language: 'EN',
+                onCreate: () => console.log('Up & running!'),
+                suggestionsApiUrl: 'https://services.wikia.com/discussion/3035/article-titles'
+            },
         );
 	</script>
   </body>

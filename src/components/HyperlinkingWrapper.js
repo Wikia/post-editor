@@ -228,7 +228,7 @@ export default class HyperlinkingWrapper extends Component {
             selectionBounds,
             linkValue,
         } = this.state;
-        const { siteId } = this.props;
+        const { suggestionsApiUrl } = this.props;
         const isEdit = current === HYPERLINKING_STATE.EDIT;
         const computedPosition = this.getComputedPosition(selectionBounds);
 
@@ -242,7 +242,7 @@ export default class HyperlinkingWrapper extends Component {
                 position={computedPosition}
                 isEdit={isEdit}
                 linkValue={linkValue}
-                siteId={siteId}
+                suggestionsApiUrl={suggestionsApiUrl}
                 onAccept={this.onAccept}
                 onInput={this.onLinkChange}
                 onRemove={this.onRemove}

@@ -5,7 +5,7 @@ import WdsIconsTrashSmall from 'design-system/dist/svg/wds-icons-trash-small.svg
 import WdsIconsCheckmarkSmall from 'design-system/dist/svg/wds-icons-checkmark-small.svg';
 
 import cls from '../utils/cls';
-import callArticleTitles from '../utils/api';
+import getArticleTitles from '../utils/api';
 
 import tooltip from './Tooltip';
 
@@ -23,6 +23,7 @@ class InputTooltip extends Component {
             isError: false,
             suggestions: [],
             selectedSuggestionIndex: -1,
+            cachedResults: {},
         };
 
         this.input = null;
@@ -85,17 +86,29 @@ class InputTooltip extends Component {
         this.getSuggestions(value);
     }
 
-    getSuggestions(value) {
-        const { siteId } = this.props;
+    getSuggestions(query) {
+        const { suggestionsApiUrl } = this.props;
+        const { cachedResults } = this.state;
 
         // API accepts queries that are at least 3-characters long
-        if (value.length < 3) {
+        if (query.length < 3) {
+            this.setState({ suggestions: [] });
+
             return;
         }
 
-        callArticleTitles(siteId, value)
-            .then(({ suggestions }) => this.setState({ suggestions }))
-            .catch(() => this.setState({ isError: true }));
+        if (cachedResults[query]) {
+            this.setState({ suggestions: cachedResults[query] });
+        } else {
+            getArticleTitles(suggestionsApiUrl, query)
+                .then(({ suggestions }) => {
+                    this.setState(prevState => ({
+                        suggestions,
+                        cachedResults: { ...prevState.cachedResults, [query]: suggestions },
+                    }));
+                })
+                .catch(() => this.setState({ isError: true }));
+        }
     }
 
     accept(url) {
@@ -109,18 +122,44 @@ class InputTooltip extends Component {
         }
     }
 
+    splitText(textToSplit, query) {
+        const escapedQuery = query.trim().toLowerCase().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const matchedIndex = textToSplit.toLowerCase().indexOf(escapedQuery);
+        const before = textToSplit.substr(0, matchedIndex);
+        const match = textToSplit.substr(matchedIndex, escapedQuery.length);
+        const after = textToSplit.substr(matchedIndex + escapedQuery.length);
+
+        return matchedIndex === -1 ? { before: textToSplit } : { before, match, after };
+    }
+
     isValidUrl(url) {
         return URL_REGEX.test(url);
     }
 
+    renderSuggestions() {
+        const { selectedSuggestionIndex, suggestions } = this.state;
+        const { linkValue } = this.props;
+
+        return suggestions.map(({ url, title }, index) => {
+            const { before, match, after } = this.splitText(title, linkValue);
+
+            return (
+                <li
+                    className={selectedSuggestionIndex === index && 'wds-is-selected'}
+                    onMouseEnter={this.onSuggestionsItemMouseEnter.bind(this, index)}
+                    key={url}
+                >
+                    <a href={url} onClick={event => event.preventDefault()}>
+                        {before}{match && <strong>{match}</strong>}{after}
+                    </a>
+                </li>
+            );
+        });
+    }
+
     render() {
         const { onRemove, isEdit, linkValue } = this.props;
-        const {
-            isLinkInvalid,
-            selectedSuggestionIndex,
-            suggestions,
-            isError,
-        } = this.state;
+        const { isLinkInvalid, suggestions, isError } = this.state;
         const { i18n } = this.context;
 
         return (
@@ -136,7 +175,12 @@ class InputTooltip extends Component {
                             onKeyPress={this.onKeyPress}
                             onKeyDown={this.onKeyDown}
                         />
-                        {isEdit && <WdsIconsTrashSmall onClick={onRemove} className="wds-icon wds-icon-small pe-input-tooltip__remove" />}
+                        {isEdit && (
+                            <WdsIconsTrashSmall
+                                onClick={onRemove}
+                                className="wds-icon wds-icon-small pe-input-tooltip__remove"
+                            />
+                        )}
                         <WdsIconsCheckmarkSmall
                             onClick={() => this.accept(linkValue)}
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"
@@ -145,11 +189,13 @@ class InputTooltip extends Component {
                     {/* fixme error message should be different for isError = true */}
                     {(isLinkInvalid || isError) && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
                 </div>
-                <div className="pe-input-tooltip__suggestions wds-dropdown__content wds-is-not-scrollable">
-                    <ul className="wds-list wds-is-linked">
-                        {suggestions.map((el, index) => (<li className={selectedSuggestionIndex === index && 'wds-is-selected'} onMouseEnter={this.onSuggestionsItemMouseEnter.bind(this, index)}><a href={el.url} onClick={event => event.preventDefault()}>{el.title}</a></li>))}
-                    </ul>
-                </div>
+                {linkValue && (
+                    <div className="pe-input-tooltip__suggestions wds-dropdown__content wds-is-not-scrollable">
+                        <ul className="wds-list wds-is-linked">
+                            {this.renderSuggestions()}
+                        </ul>
+                    </div>
+                )}
             </div>
         );
     }
