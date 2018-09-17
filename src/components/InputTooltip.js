@@ -110,12 +110,13 @@ class InputTooltip extends Component {
     }
 
     splitText(textToSplit, query) {
-        const escapedQuery = query.trim().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const escapedQuery = query.trim().toLowerCase().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
         const matchedIndex = textToSplit.toLowerCase().indexOf(escapedQuery);
-        const matched = textToSplit.substr(matchedIndex, escapedQuery.length);
-        const notMatched = textToSplit.substr(matchedIndex + escapedQuery.length);
+        const before = textToSplit.substr(0, matchedIndex);
+        const match = textToSplit.substr(matchedIndex, escapedQuery.length);
+        const after = textToSplit.substr(matchedIndex + escapedQuery.length);
 
-        return matchedIndex === -1 ? [textToSplit] : [notMatched, matched];
+        return matchedIndex === -1 ? { before: textToSplit } : { before, match, after };
     }
 
     isValidUrl(url) {
@@ -127,7 +128,7 @@ class InputTooltip extends Component {
         const { linkValue } = this.props;
 
         return suggestions.map(({ url, title }, index) => {
-            const [notMatched, matched] = this.splitText(title, linkValue);
+            const { before, match, after } = this.splitText(title, linkValue);
 
             return (
                 <li
@@ -136,7 +137,7 @@ class InputTooltip extends Component {
                     key={url}
                 >
                     <a href={url} onClick={event => event.preventDefault()}>
-                        {matched && <strong>{matched}</strong>}{notMatched}
+                        {before}{match && <strong>{match}</strong>}{after}
                     </a>
                 </li>
             );
