@@ -5,8 +5,6 @@ import { Range } from 'quill/core/selection';
 import IconTooltip from './IconTooltip';
 import InputTooltip from './InputTooltip';
 
-import './HyperlinkingWrapper.scss';
-
 const NOTCH_COMPENSATION = 20;
 const INPUT_TOOLTIP_WIDTH = 320;
 const ICON_TOOLTIP_WIDTH = 48; // 24px (.wds-icon) + 2 * 12px (padding of .pe-tooltip)
@@ -52,7 +50,7 @@ export default class HyperlinkingWrapper extends Component {
     onDocumentClick(event) {
         const { selectionBounds } = this.state;
 
-        if (!event.target.closest('.pe-hyperlinking') && selectionBounds) {
+        if (!event.target.closest('.pe-tooltip') && selectionBounds) {
             this.onClose();
         }
     }
@@ -169,23 +167,21 @@ export default class HyperlinkingWrapper extends Component {
 
     getComputedWidth() {
         const { current } = this.state;
-        const { offsetWidth } = this.quill.root.parentElement;
         const defaultWidth = (current === HYPERLINKING_STATE.INITIAL) ? ICON_TOOLTIP_WIDTH : INPUT_TOOLTIP_WIDTH;
-        // tooltip should not be wider than width of the editor minus offset
-        const maxWidth = offsetWidth - 2 * MIN_OFFSET;
+        // tooltip should not be wider than width of the viewport
+        const maxWidth = window.innerWidth - 2 * MIN_OFFSET;
 
         return Math.min(defaultWidth, maxWidth);
     }
 
     getComputedTop(bottom) {
-        const { offsetTop } = this.quill.root.parentElement;
+        const { postEditorWrapper } = this.props;
 
-        return bottom + NOTCH_COMPENSATION + offsetTop;
+        return bottom + NOTCH_COMPENSATION + postEditorWrapper.offsetTop;
     }
 
     getComputedLeft(defaultLeft, width) {
-        const { offsetWidth } = this.quill.root.parentElement;
-        const maxLeft = offsetWidth - width - MIN_OFFSET;
+        const maxLeft = window.innerWidth - width - MIN_OFFSET;
 
         return Math.max(MIN_OFFSET, Math.min(defaultLeft, maxLeft));
     }
@@ -198,10 +194,10 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     getComputedPosition(position) {
-        const { offsetLeft } = this.quill.root.parentElement;
+        const { postEditorWrapper } = this.props;
         const centerOfSelection = (position.left + position.right) / 2;
         const width = this.getComputedWidth();
-        const defaultLeft = centerOfSelection - width / 2 + offsetLeft;
+        const defaultLeft = centerOfSelection - width / 2 + postEditorWrapper.offsetLeft;
         const left = this.getComputedLeft(defaultLeft, width);
         const top = this.getComputedTop(position.bottom);
 
