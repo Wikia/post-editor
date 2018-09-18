@@ -20,16 +20,20 @@ class InputTooltip extends Component {
 
         this.state = {
             isLinkInvalid: false,
-            isError: false,
             suggestions: [],
             selectedSuggestionIndex: -1,
             cachedResults: {},
+            isFocused: false,
+            isEscaped: false,
+            suggestionsListClicked: false,
         };
 
         this.input = null;
         this.onKeyDown = this.onKeyDown.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
         this.onInput = this.onInput.bind(this);
+        this.onBlur = this.onBlur.bind(this);
+        this.onFocus = this.onFocus.bind(this);
         this.onSuggestionsItemMouseEnter = this.onSuggestionsItemMouseEnter.bind(this);
         this.getSuggestions = debounce(this.getSuggestions.bind(this), DEBOUNCE_INTERVAL);
     }
@@ -38,23 +42,25 @@ class InputTooltip extends Component {
         const { isEdit } = this.props;
 
         if (!isEdit) {
+            this.setState({ isFocused: true });
             this.input.focus();
         }
     }
 
     onKeyPress(event) {
-        const { linkValue } = this.props;
+        const { linkHref } = this.props;
 
         if (event.key === 'Enter') {
             // Enter key may cause unexpected form submission
             event.preventDefault();
 
-            this.accept(linkValue);
+            this.accept(linkHref);
         }
     }
 
     onKeyDown(event) {
         const { key } = event;
+        const { onClose } = this.props;
         const { selectedSuggestionIndex, suggestions } = this.state;
 
         if (key === 'ArrowDown' && selectedSuggestionIndex < suggestions.length - 1) {
@@ -63,6 +69,14 @@ class InputTooltip extends Component {
         } else if (key === 'ArrowUp' && selectedSuggestionIndex > -1) {
             event.preventDefault();
             this.setState({ selectedSuggestionIndex: selectedSuggestionIndex - 1 });
+        } else if (key === 'Escape') {
+            if (suggestions.length) {
+                this.setState({
+                    isEscaped: true,
+                });
+            } else {
+                onClose();
+            }
         }
     }
 
@@ -72,18 +86,37 @@ class InputTooltip extends Component {
         });
     }
 
-    onInput(event) {
-        const { onInput } = this.props;
+    onInput({ target: { value } }) {
+        const { onLinkChange } = this.props;
         const { isLinkInvalid } = this.state;
-        const { value } = event.target;
 
         if (isLinkInvalid && this.isValidUrl(value)) {
             this.setState({ isLinkInvalid: false });
         }
 
-        onInput(event);
+        this.setState({
+            isEscaped: false,
+        });
+
+        onLinkChange(value);
 
         this.getSuggestions(value);
+    }
+
+    onBlur() {
+        const { suggestionsListClicked } = this.state;
+
+        if (!suggestionsListClicked) {
+            this.setState({
+                isFocused: false,
+            });
+        }
+    }
+
+    onFocus() {
+        this.setState({
+            isFocused: true,
+        });
     }
 
     getSuggestions(query) {
@@ -104,32 +137,44 @@ class InputTooltip extends Component {
                 .then(({ suggestions }) => {
                     this.setState(prevState => ({
                         suggestions,
-                        cachedResults: { ...prevState.cachedResults, [query]: suggestions },
+                        cachedResults: {
+                            ...prevState.cachedResults,
+                            [query]: suggestions,
+                        },
                     }));
-                })
-                .catch(() => this.setState({ isError: true }));
+                });
         }
     }
 
-    accept(url) {
-        const { onAccept } = this.props;
-        const trimmedUrl = url.trim();
-
-        if (this.isValidUrl(trimmedUrl)) {
-            onAccept(trimmedUrl);
-        } else {
-            this.setState({ isLinkInvalid: true });
-        }
+    setSuggestionsListClicked(suggestionsListClicked) {
+        this.setState({
+            suggestionsListClicked,
+        });
     }
 
     splitText(textToSplit, query) {
-        const escapedQuery = query.trim().toLowerCase().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-        const matchedIndex = textToSplit.toLowerCase().indexOf(escapedQuery);
+        const queryLowerCase = query.trim()
+            .toLowerCase();
+        const matchedIndex = textToSplit.toLowerCase()
+            .indexOf(queryLowerCase);
         const before = textToSplit.substr(0, matchedIndex);
-        const match = textToSplit.substr(matchedIndex, escapedQuery.length);
-        const after = textToSplit.substr(matchedIndex + escapedQuery.length);
+        const match = textToSplit.substr(matchedIndex, queryLowerCase.length);
+        const after = textToSplit.substr(matchedIndex + queryLowerCase.length);
 
         return matchedIndex === -1 ? { before: textToSplit } : { before, match, after };
+    }
+
+    accept(providedUrl) {
+        const { onAccept, linkTitle } = this.props;
+        const { selectedSuggestionIndex, suggestions } = this.state;
+        const trimmedUrl = selectedSuggestionIndex === -1 ? providedUrl.trim() : suggestions[selectedSuggestionIndex].url;
+        const title = selectedSuggestionIndex === -1 ? linkTitle : suggestions[selectedSuggestionIndex].title;
+
+        if (this.isValidUrl(trimmedUrl)) {
+            onAccept(trimmedUrl, title);
+        } else {
+            this.setState({ isLinkInvalid: true });
+        }
     }
 
     isValidUrl(url) {
@@ -138,10 +183,10 @@ class InputTooltip extends Component {
 
     renderSuggestions() {
         const { selectedSuggestionIndex, suggestions } = this.state;
-        const { linkValue } = this.props;
+        const { linkHref } = this.props;
 
         return suggestions.map(({ url, title }, index) => {
-            const { before, match, after } = this.splitText(title, linkValue);
+            const { before, match, after } = this.splitText(title, linkHref);
 
             return (
                 <li
@@ -149,7 +194,13 @@ class InputTooltip extends Component {
                     onMouseEnter={this.onSuggestionsItemMouseEnter.bind(this, index)}
                     key={url}
                 >
-                    <a href={url} onClick={event => event.preventDefault()}>
+                    <a
+                        href={url}
+                        onClick={(event) => {
+                            event.preventDefault();
+                            this.accept(url);
+                        }}
+                    >
                         {before}{match && <strong>{match}</strong>}{after}
                     </a>
                 </li>
@@ -158,20 +209,38 @@ class InputTooltip extends Component {
     }
 
     render() {
-        const { onRemove, isEdit, linkValue } = this.props;
-        const { isLinkInvalid, suggestions, isError } = this.state;
+        const {
+            onRemove,
+            isEdit,
+            linkHref,
+            linkTitle,
+        } = this.props;
+        const {
+            isLinkInvalid,
+            suggestions,
+            isFocused,
+            isEscaped,
+        } = this.state;
         const { i18n } = this.context;
+        const valueToDisplay = linkTitle || linkHref;
+        const shouldShowDropdown = suggestions.length && isFocused && !isEscaped;
 
         return (
-            <div className={cls('pe-input-tooltip wds-dropdown wds-no-chevron', suggestions.length && 'wds-is-active')}>
+            <div
+                className={cls('pe-input-tooltip wds-dropdown wds-no-chevron', shouldShowDropdown && 'wds-is-active')}
+            >
                 <div className={cls('wds-input', isLinkInvalid && 'has-error')}>
                     <div className="wds-input__field-wrapper">
                         <input
                             placeholder={i18n['hyperlinking-placeholder']}
                             className="wds-input__field"
-                            ref={(el) => { this.input = el; }}
-                            value={linkValue}
+                            ref={(el) => {
+                                this.input = el;
+                            }}
+                            value={valueToDisplay}
                             onInput={this.onInput}
+                            onFocus={this.onFocus}
+                            onBlur={this.onBlur}
                             onKeyPress={this.onKeyPress}
                             onKeyDown={this.onKeyDown}
                         />
@@ -182,15 +251,19 @@ class InputTooltip extends Component {
                             />
                         )}
                         <WdsIconsCheckmarkSmall
-                            onClick={() => this.accept(linkValue)}
+                            onClick={() => this.accept(linkHref)}
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"
                         />
                     </div>
-                    {/* fixme error message should be different for isError = true */}
-                    {(isLinkInvalid || isError) && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
+                    {isLinkInvalid && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
                 </div>
-                {linkValue && (
-                    <div className="pe-input-tooltip__suggestions wds-dropdown__content wds-is-not-scrollable">
+                {linkHref && (
+                    <div
+                        className="pe-input-tooltip__suggestions wds-dropdown__content wds-is-not-scrollable"
+                        role="presentation"
+                        onMouseDown={this.setSuggestionsListClicked.bind(this, true)}
+                        onMouseUp={this.setSuggestionsListClicked.bind(this, false)}
+                    >
                         <ul className="wds-list wds-is-linked">
                             {this.renderSuggestions()}
                         </ul>
