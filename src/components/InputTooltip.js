@@ -25,10 +25,10 @@ class InputTooltip extends Component {
             cachedResults: {},
             isFocused: false,
             isEscaped: false,
+            suggestionsListClicked: false,
         };
 
         this.input = null;
-        this.suggestionsListClicked = false;
         this.onKeyDown = this.onKeyDown.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
         this.onInput = this.onInput.bind(this);
@@ -104,7 +104,9 @@ class InputTooltip extends Component {
     }
 
     onBlur() {
-        if (!this.suggestionsListClicked) {
+        const { suggestionsListClicked } = this.state;
+
+        if (!suggestionsListClicked) {
             this.setState({
                 isFocused: false,
             });
@@ -144,8 +146,10 @@ class InputTooltip extends Component {
         }
     }
 
-    setSuggestionsListClicked(value) {
-        this.suggestionsListClicked = value;
+    setSuggestionsListClicked(suggestionsListClicked) {
+        this.setState({
+            suggestionsListClicked,
+        });
     }
 
     splitText(textToSplit, query) {
