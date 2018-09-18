@@ -34,6 +34,7 @@ export default class HyperlinkingWrapper extends Component {
             current: HYPERLINKING_STATE.INITIAL,
             selectionBounds: null,
             linkValue: '',
+            linkTitle: undefined,
         };
 
         this.quill.on('selection-change', this.onSelection.bind(this));
@@ -102,7 +103,7 @@ export default class HyperlinkingWrapper extends Component {
                 const [blotToEdit, blotRange] = this.getBlotFromIndex(range.index);
 
                 if (blotToEdit.statics.blotName === 'link') {
-                    const linkValue = blotToEdit.formats().link;
+                    const { url: linkValue, title: linkTitle } = blotToEdit.formats().link;
 
                     blotToEdit.format('active', true);
 
@@ -110,6 +111,7 @@ export default class HyperlinkingWrapper extends Component {
                         blotToEdit,
                         current: HYPERLINKING_STATE.EDIT,
                         linkValue,
+                        linkTitle,
                         selectionBounds: this.quill.getBounds(blotRange),
                     });
                 } else {
@@ -130,6 +132,7 @@ export default class HyperlinkingWrapper extends Component {
             selectionBounds: null,
             current: HYPERLINKING_STATE.INITIAL,
             linkValue: '',
+            linkTitle: undefined,
             blotToEdit: undefined,
         });
         this.resetHighlighting();
@@ -141,12 +144,15 @@ export default class HyperlinkingWrapper extends Component {
         });
     }
 
-    onLinkChange({ target: { value } }) {
-        this.setState({ linkValue: value });
+    onLinkChange(linkValue) {
+        this.setState({
+            linkValue,
+            linkTitle: undefined,
+        });
     }
 
-    onAccept(url) {
-        this.formatLink(url);
+    onAccept(url, title) {
+        this.formatLink(url, title);
         this.onClose();
     }
 
@@ -211,11 +217,14 @@ export default class HyperlinkingWrapper extends Component {
         };
     }
 
-    formatLink(url) {
+    formatLink(url, title) {
         const { blotToEdit } = this.state;
         const objectToFormat = blotToEdit || this.quill;
 
-        objectToFormat.format('link', url);
+        objectToFormat.format('link', url && {
+            url,
+            title,
+        });
     }
 
     resetHighlighting() {
@@ -227,6 +236,7 @@ export default class HyperlinkingWrapper extends Component {
             current,
             selectionBounds,
             linkValue,
+            linkTitle,
         } = this.state;
         const { suggestionsApiUrl } = this.props;
         const isEdit = current === HYPERLINKING_STATE.EDIT;
@@ -242,10 +252,12 @@ export default class HyperlinkingWrapper extends Component {
                 position={computedPosition}
                 isEdit={isEdit}
                 linkValue={linkValue}
+                linkTitle={linkTitle}
                 suggestionsApiUrl={suggestionsApiUrl}
                 onAccept={this.onAccept}
-                onInput={this.onLinkChange}
+                onLinkChange={this.onLinkChange}
                 onRemove={this.onRemove}
+                onClose={this.onClose}
             />
         );
     }
