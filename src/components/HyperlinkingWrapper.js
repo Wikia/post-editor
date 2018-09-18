@@ -33,7 +33,7 @@ export default class HyperlinkingWrapper extends Component {
         this.state = {
             current: HYPERLINKING_STATE.INITIAL,
             selectionBounds: null,
-            linkValue: '',
+            linkHref: '',
             linkTitle: undefined,
         };
 
@@ -103,14 +103,14 @@ export default class HyperlinkingWrapper extends Component {
                 const [blotToEdit, blotRange] = this.getBlotFromIndex(range.index);
 
                 if (blotToEdit.statics.blotName === 'link') {
-                    const { url: linkValue, title: linkTitle } = blotToEdit.formats().link;
+                    const { url: linkHref, title: linkTitle } = blotToEdit.formats().link;
 
                     blotToEdit.format('active', true);
 
                     this.setState({
                         blotToEdit,
                         current: HYPERLINKING_STATE.EDIT,
-                        linkValue,
+                        linkHref,
                         linkTitle,
                         selectionBounds: this.quill.getBounds(blotRange),
                     });
@@ -131,7 +131,7 @@ export default class HyperlinkingWrapper extends Component {
         this.setState({
             selectionBounds: null,
             current: HYPERLINKING_STATE.INITIAL,
-            linkValue: '',
+            linkHref: '',
             linkTitle: undefined,
             blotToEdit: undefined,
         });
@@ -144,9 +144,9 @@ export default class HyperlinkingWrapper extends Component {
         });
     }
 
-    onLinkChange(linkValue) {
+    onLinkChange(linkHref) {
         this.setState({
-            linkValue,
+            linkHref,
             linkTitle: undefined,
         });
     }
@@ -235,7 +235,7 @@ export default class HyperlinkingWrapper extends Component {
         const {
             current,
             selectionBounds,
-            linkValue,
+            linkHref,
             linkTitle,
         } = this.state;
         const { suggestionsApiUrl } = this.props;
@@ -251,7 +251,7 @@ export default class HyperlinkingWrapper extends Component {
             <InputTooltip
                 position={computedPosition}
                 isEdit={isEdit}
-                linkValue={linkValue}
+                linkHref={linkHref}
                 linkTitle={linkTitle}
                 suggestionsApiUrl={suggestionsApiUrl}
                 onAccept={this.onAccept}

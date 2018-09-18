@@ -48,13 +48,13 @@ class InputTooltip extends Component {
     }
 
     onKeyPress(event) {
-        const { linkValue } = this.props;
+        const { linkHref } = this.props;
 
         if (event.key === 'Enter') {
             // Enter key may cause unexpected form submission
             event.preventDefault();
 
-            this.accept(linkValue);
+            this.accept(linkHref);
         }
     }
 
@@ -149,14 +149,13 @@ class InputTooltip extends Component {
     }
 
     splitText(textToSplit, query) {
-        const escapedQuery = query.trim()
-            .toLowerCase()
-            .replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const queryLowerCase = query.trim()
+            .toLowerCase();
         const matchedIndex = textToSplit.toLowerCase()
-            .indexOf(escapedQuery);
+            .indexOf(queryLowerCase);
         const before = textToSplit.substr(0, matchedIndex);
-        const match = textToSplit.substr(matchedIndex, escapedQuery.length);
-        const after = textToSplit.substr(matchedIndex + escapedQuery.length);
+        const match = textToSplit.substr(matchedIndex, queryLowerCase.length);
+        const after = textToSplit.substr(matchedIndex + queryLowerCase.length);
 
         return matchedIndex === -1 ? { before: textToSplit } : { before, match, after };
     }
@@ -180,10 +179,10 @@ class InputTooltip extends Component {
 
     renderSuggestions() {
         const { selectedSuggestionIndex, suggestions } = this.state;
-        const { linkValue } = this.props;
+        const { linkHref } = this.props;
 
         return suggestions.map(({ url, title }, index) => {
-            const { before, match, after } = this.splitText(title, linkValue);
+            const { before, match, after } = this.splitText(title, linkHref);
 
             return (
                 <li
@@ -209,7 +208,7 @@ class InputTooltip extends Component {
         const {
             onRemove,
             isEdit,
-            linkValue,
+            linkHref,
             linkTitle,
         } = this.props;
         const {
@@ -219,7 +218,7 @@ class InputTooltip extends Component {
             isEscaped,
         } = this.state;
         const { i18n } = this.context;
-        const valueToDisplay = linkTitle || linkValue;
+        const valueToDisplay = linkTitle || linkHref;
         const shouldShowDropdown = suggestions.length && isFocused && !isEscaped;
 
         return (
@@ -248,13 +247,13 @@ class InputTooltip extends Component {
                             />
                         )}
                         <WdsIconsCheckmarkSmall
-                            onClick={() => this.accept(linkValue)}
+                            onClick={() => this.accept(linkHref)}
                             className="wds-icon wds-icon-small pe-input-tooltip__accept"
                         />
                     </div>
                     {isLinkInvalid && <span className="wds-input__hint">{i18n['hyperlinking-error']}</span>}
                 </div>
-                {linkValue && (
+                {linkHref && (
                     <div
                         className="pe-input-tooltip__suggestions wds-dropdown__content wds-is-not-scrollable"
                         role="presentation"
