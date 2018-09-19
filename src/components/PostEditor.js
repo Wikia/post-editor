@@ -20,6 +20,7 @@ export default class PostEditor extends Component {
         super(props);
 
         this.quillContainer = null;
+        this.postEditorWrapper = null;
         this.state = {
             quill: null,
         };
@@ -44,13 +45,13 @@ export default class PostEditor extends Component {
 
     render() {
         const { quill } = this.state;
-        const { language } = this.props;
+        const { language, suggestionsApiUrl } = this.props;
 
         return (
             <I18nProvider language={language}>
-                <div className="pe-wrapper">
+                <div className="pe-wrapper" ref={(el) => { this.postEditorWrapper = el; }}>
                     <div className="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
-                    {quill && <HyperlinkingWrapper quill={quill} />}
+                    {quill && <HyperlinkingWrapper quill={quill} postEditorWrapper={this.postEditorWrapper} suggestionsApiUrl={suggestionsApiUrl} />}
                 </div>
             </I18nProvider>
         );
