@@ -4,7 +4,7 @@
 	box-shadow: 0 0 20px 0 rgba(26, 26, 26, .3);
 	padding: 12px;
 	position: absolute;
-	z-index: 2;
+	z-index: 1000;
 
 	&__notch {
 		border: 8px solid transparent;
@@ -18,4 +18,9 @@
 		top: -16px;
 		width: 0;
 	}
+}
+
+.pe-tooltip,
+.pe-tooltip * {
+	box-sizing: border-box;
 }
