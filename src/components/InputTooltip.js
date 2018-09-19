@@ -60,7 +60,7 @@ class InputTooltip extends Component {
 
     onKeyDown(event) {
         const { key } = event;
-        const { onClose } = this.props;
+        const { onClose, isEscaped } = this.props;
         const { selectedSuggestionIndex, suggestions } = this.state;
 
         if (key === 'ArrowDown' && selectedSuggestionIndex < suggestions.length - 1) {
@@ -70,7 +70,7 @@ class InputTooltip extends Component {
             event.preventDefault();
             this.setState({ selectedSuggestionIndex: selectedSuggestionIndex - 1 });
         } else if (key === 'Escape') {
-            if (suggestions.length) {
+            if (suggestions.length && !isEscaped) {
                 this.setState({
                     isEscaped: true,
                 });
