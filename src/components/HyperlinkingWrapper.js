@@ -176,8 +176,9 @@ export default class HyperlinkingWrapper extends Component {
 
     getComputedTop(bottom) {
         const { postEditorWrapper } = this.props;
+        const offsetTop = postEditorWrapper.getBoundingClientRect().top + window.scrollY;
 
-        return bottom + NOTCH_COMPENSATION + postEditorWrapper.getBoundingClientRect().top + window.scrollY;
+        return bottom + NOTCH_COMPENSATION + offsetTop;
     }
 
     getComputedLeft(defaultLeft, width) {
@@ -195,9 +196,10 @@ export default class HyperlinkingWrapper extends Component {
 
     getComputedPosition(position) {
         const { postEditorWrapper } = this.props;
+        const offsetLeft = postEditorWrapper.getBoundingClientRect().left + window.scrollX;
         const centerOfSelection = (position.left + position.right) / 2;
         const width = this.getComputedWidth();
-        const defaultLeft = centerOfSelection - width / 2 + postEditorWrapper.getBoundingClientRect().left + window.scrollX;
+        const defaultLeft = centerOfSelection - width / 2 + offsetLeft;
         const left = this.getComputedLeft(defaultLeft, width);
         const top = this.getComputedTop(position.bottom);
 
