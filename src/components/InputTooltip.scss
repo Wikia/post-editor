@@ -44,6 +44,11 @@
 		top: calc(100% + 1px);
 		transform: none;
 
+		.wds-list a {
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
 		.wds-list.wds-is-linked > li:hover:not(.wds-is-selected) > a {
 			background-color: inherit;
 			color: inherit;
