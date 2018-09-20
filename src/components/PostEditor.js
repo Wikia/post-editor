@@ -9,6 +9,7 @@ import HyperlinkingWrapper from './HyperlinkingWrapper';
 
 import 'quill/dist/quill.core.css';
 import './PostEditor.scss';
+import TrackingProvider from './TrackingProvider';
 
 Quill.register({
     'formats/highlight': Highlight,
@@ -45,15 +46,17 @@ export default class PostEditor extends Component {
 
     render() {
         const { quill } = this.state;
-        const { language, suggestionsApiUrl } = this.props;
+        const { language, suggestionsApiUrl, onTrack } = this.props;
 
         return (
-            <I18nProvider language={language}>
-                <div className="pe-wrapper" ref={(el) => { this.postEditorWrapper = el; }}>
-                    <div className="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
-                    {quill && <HyperlinkingWrapper quill={quill} postEditorWrapper={this.postEditorWrapper} suggestionsApiUrl={suggestionsApiUrl} />}
-                </div>
-            </I18nProvider>
+            <TrackingProvider onTrack={onTrack}>
+                <I18nProvider language={language}>
+                    <div className="pe-wrapper" ref={(el) => { this.postEditorWrapper = el; }}>
+                        <div className="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
+                        {quill && <HyperlinkingWrapper quill={quill} postEditorWrapper={this.postEditorWrapper} suggestionsApiUrl={suggestionsApiUrl} />}
+                    </div>
+                </I18nProvider>
+            </TrackingProvider>
         );
     }
 }

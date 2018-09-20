@@ -102,6 +102,7 @@ export default class HyperlinkingWrapper extends Component {
 
                 if (blotToEdit.statics.blotName === 'link') {
                     const { url: linkHref, title: linkTitle } = blotToEdit.formats().link;
+                    const { track } = this.context;
 
                     blotToEdit.format('active', true);
 
@@ -111,6 +112,11 @@ export default class HyperlinkingWrapper extends Component {
                         linkHref,
                         linkTitle,
                         selectionBounds: this.quill.getBounds(blotRange),
+                    });
+
+                    track({
+                        action: 'click',
+                        label: 'hyperlink-edit',
                     });
                 } else {
                     this.onClose();
@@ -137,8 +143,14 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     onCreate() {
+        const { track } = this.context;
+
         this.setState({
             current: HYPERLINKING_STATE.CREATE,
+        });
+        track({
+            action: 'click',
+            label: 'hyperlink-icon-clicked',
         });
     }
 
@@ -150,11 +162,33 @@ export default class HyperlinkingWrapper extends Component {
     }
 
     onAccept(url, title) {
+        const { current } = this.state;
+        const { track } = this.context;
+
+        if (title) {
+            track({
+                action: 'click',
+                label: 'hyperlink-suggestion-chosen',
+            });
+        }
+
+        track({
+            action: 'submit',
+            label: current === HYPERLINKING_STATE.EDIT ? 'hyperlink-edited' : 'hyperlink-added',
+        });
+
         this.formatLink(url, title);
         this.onClose();
     }
 
     onRemove() {
+        const { track } = this.context;
+
+        track({
+            action: 'remove',
+            label: 'hyperlink-removed',
+        });
+
         this.formatLink(undefined);
         this.onClose();
     }

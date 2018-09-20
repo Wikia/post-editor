@@ -166,13 +166,21 @@ class InputTooltip extends Component {
 
     accept(providedUrl) {
         const { onAccept, linkTitle } = this.props;
-        const { selectedSuggestionIndex, suggestions } = this.state;
+        const { selectedSuggestionIndex, suggestions, isLinkInvalid } = this.state;
+        const { track } = this.context;
         const trimmedUrl = selectedSuggestionIndex === -1 ? providedUrl.trim() : suggestions[selectedSuggestionIndex].url;
         const title = selectedSuggestionIndex === -1 ? linkTitle : suggestions[selectedSuggestionIndex].title;
 
         if (this.isValidUrl(trimmedUrl)) {
             onAccept(trimmedUrl, title);
         } else {
+            if (!isLinkInvalid) {
+                track({
+                    action: 'impression',
+                    label: 'hyperlink-errormessage-showed',
+                });
+            }
+
             this.setState({ isLinkInvalid: true });
         }
     }
