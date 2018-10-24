@@ -16,6 +16,14 @@ Quill.register({
     'formats/link': Link,
 });
 
+/**
+ * Quill supports lots of different formattings out of the box,
+ * we want to have only the ones we've created
+ *
+ * @see https://quilljs.com/docs/formats/#formats
+ */
+const SUPPORTED_FORMATS = ['highlight', 'link'];
+
 export default class PostEditor extends Component {
     constructor(props) {
         super(props);
@@ -29,7 +37,8 @@ export default class PostEditor extends Component {
 
     componentDidMount() {
         const { onCreate, quillConfig } = this.props;
-        const quill = new Quill(this.quillContainer, quillConfig);
+        const computedConfig = Object.assign({ formats: SUPPORTED_FORMATS }, quillConfig);
+        const quill = new Quill(this.quillContainer, computedConfig);
 
         this.setState({
             quill,
