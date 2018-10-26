@@ -69,20 +69,24 @@ export default class HyperlinkingWrapper extends Component {
 
     onSelection(range) {
         if (range) {
-            if (range.length > 0) {
-                const lines = this.quill.getLines(range.index, range.length);
+            // trim any leading or trailing whitespace from the selection
+            const rangeMinusWhitespace = this.getRangeMinusWhitespace(range);
+            this.quill.setSelection(rangeMinusWhitespace, 'silent');
+
+            if (rangeMinusWhitespace.length > 0) {
+                const lines = this.quill.getLines(rangeMinusWhitespace.index, rangeMinusWhitespace.length);
 
                 let selectionBounds;
 
                 // gets bounds for last selected line
                 if (lines.length === 1) {
-                    selectionBounds = this.quill.getBounds(range);
+                    selectionBounds = this.quill.getBounds(rangeMinusWhitespace);
                 } else {
                     const lastLine = lines[lines.length - 1];
                     const index = this.quill.getIndex(lastLine);
                     const length = Math.min(
                         lastLine.length() - 1,
-                        range.index + range.length - index,
+                        rangeMinusWhitespace.index + rangeMinusWhitespace.length - index,
                     );
 
                     selectionBounds = this.quill.getBounds(new Range(index, length));
@@ -191,6 +195,17 @@ export default class HyperlinkingWrapper extends Component {
 
         this.formatLink(undefined);
         this.onClose();
+    }
+
+    getRangeMinusWhitespace(range) {
+        const selectedText = this.quill.getText(range);
+        const leadingWhitespaceCount = selectedText.length - selectedText.trimLeft().length;
+        const trailingWhitespaceCount = selectedText.length - selectedText.trimRight().length;
+
+        return new Range(
+            range.index + leadingWhitespaceCount,
+            range.length - leadingWhitespaceCount - trailingWhitespaceCount
+        );
     }
 
     getBlotFromIndex(index) {
