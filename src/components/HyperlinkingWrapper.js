@@ -200,7 +200,7 @@ export default class HyperlinkingWrapper extends Component {
     getRangeMinusWhitespace(range) {
         const selectedText = this.quill.getText(range);
         const leadingWhitespaceCount = selectedText.length - selectedText.replace(/^\s*/, '').length;
-        const trailingWhitespaceCount = selectedText.length - selectedText.trimRight().length;
+        const trailingWhitespaceCount = selectedText.length - selectedText.replace(/\s*$/, '').length;
 
         return new Range(
             range.index + leadingWhitespaceCount,
