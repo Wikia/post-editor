@@ -1,6 +1,6 @@
 {
   "name": "@wikia/post-editor",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "dist/post-editor.min.js",
   "license": "Apache-2.0",
   "repository": {
@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "debounce": "^1.2.0",
-    "design-system": "git://github.com/Wikia/design-system.git#14.2.0",
+    "design-system": "git://github.com/Wikia/design-system.git#15.1.2",
     "preact": "^8.2.9",
     "preact-portal": "^1.1.3",
     "quill": "^1.3.6"
