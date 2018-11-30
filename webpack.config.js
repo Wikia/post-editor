@@ -39,7 +39,7 @@ if (isDevelopment) {
 }
 
 module.exports = {
-    mode: process.env.NODE_ENV,
+    mode: 'development',
     entry: './src/index.js',
     output: {
         path: `${__dirname}/dist`,
