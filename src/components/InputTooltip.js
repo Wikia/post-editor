@@ -237,6 +237,7 @@ class InputTooltip extends Component {
             <div
                 className={cls('pe-input-tooltip wds-dropdown wds-no-chevron', shouldShowDropdown && 'wds-is-active')}
                 onClick={event => event.stopPropagation()}
+                role="presentation"
             >
                 <div className={cls('wds-input', isLinkInvalid && 'has-error')}>
                     <div className="wds-input__field-wrapper">
