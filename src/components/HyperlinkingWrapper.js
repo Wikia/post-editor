@@ -142,10 +142,8 @@ export default class HyperlinkingWrapper extends Component {
         this.resetHighlighting();
     }
 
-    onCreate(event) {
+    onCreate() {
         const { track } = this.context;
-
-        event.stopPropagation();
 
         this.setState({
             current: HYPERLINKING_STATE.CREATE,
