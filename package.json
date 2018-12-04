@@ -1,6 +1,6 @@
 {
   "name": "@wikia/post-editor",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "dist/post-editor.min.js",
   "license": "Apache-2.0",
   "repository": {
