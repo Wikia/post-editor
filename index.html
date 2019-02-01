@@ -15,7 +15,9 @@
             document.querySelector('#quill-root'),
             {
                 language: 'EN',
-                onCreate: () => console.log('Up & running!'),
+                onCreate: ({setHTML}) => {
+                    setHTML('<blockquote>blockquote<cite>cite</cite></blockquote>');
+                },
                 onTrack: data => console.log(data),
                 suggestionsApiUrl: 'https://services.wikia.com/discussion/3035/article-titles'
             },

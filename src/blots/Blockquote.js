@@ -1,11 +1,8 @@
-import Inline from 'quill/blots/inline';
+import Block from 'quill/blots/block';
 
-export default class Blockquote extends Inline {
+export default class Blockquote extends Block {
     static blotName = 'blockquote';
 
     static tagName = 'blockquote';
 
-    static formats(node) {
-        node.setAttribute('contenteditable', false);
-    }
 }
