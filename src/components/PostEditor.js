@@ -3,6 +3,8 @@ import { h, Component } from 'preact';
 
 import Highlight from '../blots/Highlight';
 import Link from '../blots/Link';
+import Blockquote from '../blots/Blockquote';
+import Cite from '../blots/Cite';
 
 import I18nProvider from './I18nProvider';
 import HyperlinkingWrapper from './HyperlinkingWrapper';
@@ -14,6 +16,8 @@ import TrackingProvider from './TrackingProvider';
 Quill.register({
     'formats/highlight': Highlight,
     'formats/link': Link,
+    'formats/blockquote': Blockquote,
+    'formats/cite': Cite,
 });
 
 /**
@@ -22,7 +26,7 @@ Quill.register({
  *
  * @see https://quilljs.com/docs/formats/#formats
  */
-const SUPPORTED_FORMATS = ['highlight', 'link'];
+const SUPPORTED_FORMATS = ['highlight', 'link', 'blockquote', 'cite'];
 
 export default class PostEditor extends Component {
     constructor(props) {
