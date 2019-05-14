@@ -3,6 +3,7 @@ import { h, Component } from 'preact';
 
 import Highlight from '../blots/Highlight';
 import Link from '../blots/Link';
+import Poll from '../blots/Poll';
 
 import I18nProvider from './I18nProvider';
 import HyperlinkingWrapper from './HyperlinkingWrapper';
@@ -16,13 +17,15 @@ Quill.register({
     'formats/link': Link,
 });
 
+Quill.register(Poll);
+
 /**
  * Quill supports lots of different formattings out of the box,
  * we want to have only the ones we've created
  *
  * @see https://quilljs.com/docs/formats/#formats
  */
-const SUPPORTED_FORMATS = ['highlight', 'link'];
+const SUPPORTED_FORMATS = ['highlight', 'link', 'poll'];
 
 export default class PostEditor extends Component {
     constructor(props) {
@@ -53,6 +56,16 @@ export default class PostEditor extends Component {
         });
     }
 
+    addPoll() {
+        console.log(this.state.quill);
+        const quill = this.state.quill;
+        let range = quill.getSelection(true);
+        let id = '464454167226904576';
+        quill.insertText(range.index, '\n', Quill.sources.USER);
+        quill.insertEmbed(range.index + 1, 'poll', id, Quill.sources.USER);
+        quill.setSelection(range.index + 2, Quill.sources.SILENT);
+    }
+
     render() {
         const { quill } = this.state;
         const { language, suggestionsApiUrl, onTrack } = this.props;
@@ -63,6 +76,7 @@ export default class PostEditor extends Component {
                     <div className="pe-wrapper" ref={(el) => { this.postEditorWrapper = el; }}>
                         <div className="pe-quill-container" ref={(el) => { this.quillContainer = el; }} />
                         {quill && <HyperlinkingWrapper quill={quill} postEditorWrapper={this.postEditorWrapper} suggestionsApiUrl={suggestionsApiUrl} />}
+                        <button type="button" onClick={() => this.addPoll()}>Add a poll</button>
                     </div>
                 </I18nProvider>
             </TrackingProvider>
